@@ -1,0 +1,85 @@
+<template>
+  <div class="w-full h-fit">
+    <!-- Image Slider Section -->
+    <div class="relative bg-gray-100 h-96 overflow-hidden">
+      <div
+        v-for="(image, index) in images"
+        :key="index"
+        :class="[
+          'absolute inset-0 transition-opacity duration-1000',
+          currentIndex === index ? 'opacity-100' : 'opacity-0',
+        ]"
+      >
+        <img
+          :src="image"
+          class="w-full h-full object-cover"
+          alt="Slider Image"
+        />
+      </div>
+      <!-- Slider Navigation Buttons -->
+      <button
+        @click="prevSlide"
+        class="absolute top-1/2 left-4 transform -translate-y-1/2 text-white text-2xl"
+      >
+        &#10094;
+      </button>
+      <button
+        @click="nextSlide"
+        class="absolute top-1/2 right-4 transform -translate-y-1/2 text-white text-2xl"
+      >
+        &#10095;
+      </button>
+    </div>
+
+    <!-- Product List -->
+    <ProductList />
+  </div>
+</template>
+
+<script>
+import ProductList from "../components/Product/ProductList.vue";
+import { ref, onMounted } from "vue";
+
+export default {
+  name: "Home",
+  components: { ProductList },
+  setup() {
+    // Image Slider Setup
+    const images = [
+      "https://pos.nvncdn.com/eb9ddb-116318/bn/20220324_Oh53NJJ4ig1sNzfa7mH5CDRp.jpg",
+      "https://cdn.authentic-shoes.com/wp-content/uploads/2024/10/20240926111113-0.webp",
+      "https://cdn.authentic-shoes.com/wp-content/uploads/2023/09/image-54-2048x711-2.webp",
+    ];
+    const currentIndex = ref(0);
+
+    // Change slide every few seconds
+    const changeSlide = () => {
+      currentIndex.value = (currentIndex.value + 1) % images.length;
+    };
+
+    // Start automatic slide change
+    onMounted(() => {
+      setInterval(changeSlide, 5000);
+    });
+
+    // Manual slide navigation
+    const prevSlide = () => {
+      currentIndex.value =
+        (currentIndex.value - 1 + images.length) % images.length;
+    };
+    const nextSlide = () => {
+      currentIndex.value = (currentIndex.value + 1) % images.length;
+    };
+
+    return {
+      images,
+      currentIndex,
+      prevSlide,
+      nextSlide,
+    };
+  },
+};
+</script>
+
+<style scoped>
+</style>

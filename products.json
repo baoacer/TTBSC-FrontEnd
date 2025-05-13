@@ -1,0 +1,178 @@
+{
+  "products": [
+    {
+      "id": "1",
+      "image": "https://pos.nvncdn.com/eb9ddb-116318/ps/20220323_i080VhfrsDw23CVK8vdyktjU.png",
+      "name": "Ba lô Herschel Little America Light Rose",
+      "price": 655000,
+      "discount": 0.5,
+      "category": "HERSCHEL",
+      "sizes": [
+        "S",
+        "L",
+        "M"
+      ],
+      "code": "HERSCHEL 15",
+      "quantity": 90
+    },
+    {
+      "id": "2",
+      "image": "https://pos.nvncdn.com/eb9ddb-116318/ps/20220323_SwEKJJNmjz7ybiiEFqd00oNu.png",
+      "name": "Áo Sweater Fear Of God Essentials Pullover Mockneck Dark Heather Oatmeal",
+      "price": 655000,
+      "discount": 0,
+      "category": "Quần áo",
+      "sizes": [
+        "S",
+        "L",
+        "M"
+      ],
+      "code": "AF134",
+      "quantity": 90
+    },
+    {
+      "id": "3",
+      "image": "https://pos.nvncdn.com/eb9ddb-116318/ps/20220323_dvWXYRWg1RNqs3sHUudkjuSk.png",
+      "name": "Mũ Fear Of God Essentials RC 9Fifty Cap Moonstruck",
+      "price": 1250000,
+      "discount": 0.3,
+      "category": "Mũ",
+      "sizes": [
+        "S",
+        "L",
+        "M"
+      ],
+      "code": "Cap Moonstruck",
+      "quantity": 90
+    },
+    {
+      "id": "4",
+      "image": "https://pos.nvncdn.com/eb9ddb-116318/ps/20220322_zG8HeLiaFEeZzznjSkmnhsqx.png",
+      "name": "Giày Nike NikeLab Air Max 1 Pinnacle ‘Sand’",
+      "price": 5400000,
+      "discount": 0,
+      "category": "Giày",
+      "sizes": [
+        "43",
+        "42",
+        "41",
+        "40"
+      ],
+      "code": "859554-201",
+      "quantity": 90
+    },
+    {
+      "id": "5",
+      "image": "https://pos.nvncdn.com/eb9ddb-116318/ps/20220322_qMyWDfxPNvHlQTmdUnjhonEV.png",
+      "name": "Giày Nike Patta x Air Max 1 ‘Noise Aqua’",
+      "price": 655000,
+      "discount": 0,
+      "category": "Giày",
+      "sizes": [
+        "43",
+        "42",
+        "41",
+        "40"
+      ],
+      "code": "DH1348-004",
+      "quantity": 90
+    },
+    {
+      "id": "6",
+      "image": "https://pos.nvncdn.com/eb9ddb-116318/ps/20220323_fRHX6vcvF0tqQxclAPTY48Bq.png",
+      "name": "Quần Nike AS M NSW Club JGGR FT ‘Black’",
+      "price": 2100000,
+      "discount": 0,
+      "category": "Quần áo",
+      "sizes": [
+        "S",
+        "L",
+        "M"
+      ],
+      "code": "859554-999",
+      "quantity": 90
+    },
+    {
+      "id": "7",
+      "image": "https://pos.nvncdn.com/eb9ddb-116318/ps/20220322_nAJcan56NHU3SwS668FgpiWK.png",
+      "name": "Giày Nike Air Zoom Winflo 8 ‘Rawdacious’",
+      "price": 655000,
+      "discount": 0.1,
+      "category": "Giày",
+      "sizes": [
+        "43",
+        "42",
+        "41",
+        "40"
+      ],
+      "code": "CW3419-100",
+      "quantity": 90
+    },
+    {
+      "id": "8",
+      "image": "https://pos.nvncdn.com/eb9ddb-116318/ps/20220322_sBCkCclhJLG8uMQF9ngfpF65.png",
+      "name": "Giày nam Nike Air Zoom Pegasus 38 ‘Pure Platinum’",
+      "price": 4550000,
+      "discount": 0,
+      "category": "Giày",
+      "sizes": [
+        "43",
+        "42",
+        "41",
+        "40"
+      ],
+      "code": "C7356-009",
+      "quantity": 90
+    },
+    {
+      "id": "9",
+      "image": "https://pos.nvncdn.com/eb9ddb-116318/ps/20220323_2Z8LxlK0WPtiULRcT2u5oaja.png",
+      "name": "Giày Nike Air Max 90 ‘Lucha Libre’",
+      "price": 4500000,
+      "discount": 0,
+      "category": "Giày",
+      "sizes": [
+        "43",
+        "42",
+        "41",
+        "40"
+      ],
+      "code": "DM6178-010",
+      "quantity": 90
+    },
+    {
+      "id": "10",
+      "image": "https://pos.nvncdn.com/eb9ddb-116318/ps/20220323_jOkbUuVzDWfhw5nM3zHEabMA.jpg",
+      "name": "Giày nam Puma RS-Fast ‘International Game’",
+      "price": 655000,
+      "discount": 0,
+      "category": "Giày",
+      "sizes": [
+        "43",
+        "42",
+        "41",
+        "40"
+      ],
+      "code": "375149-01",
+      "quantity": 90
+    }
+  ],
+  "user": [
+    {
+      "id": "96df",
+      "name": "Phan Anh Đông",
+      "email": "anhdong@gmail.com",
+      "phone": "0123456789",
+      "address": "Tân Bình HCM",
+      "password": "12345678"
+    },
+    {
+      "id": "7edb",
+      "name": "DONG ĐẸP TRAI",
+      "email": "dongdeptrai@GMAIL.COM",
+      "phone": "123456789",
+      "address": "TAN BÌNH PHẠM VĂN HAI",
+      "password": "123456"
+    }
+  ]
+}
