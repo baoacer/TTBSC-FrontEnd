@@ -33,16 +33,24 @@
 
     <!-- Product List -->
     <ProductList />
+
+    <!-- Nút mở chat -->
+    <ChatBot />
+
   </div>
 </template>
 
 <script>
 import ProductList from "../components/Product/ProductList.vue";
+import ChatBot from '@/components/ChatBot.vue';
 import { ref, onMounted } from "vue";
 
 export default {
   name: "Home",
-  components: { ProductList },
+  components: {
+    ProductList,
+    ChatBot
+  },
   setup() {
     // Image Slider Setup
     const images = [
@@ -51,19 +59,17 @@ export default {
       "https://cdn.authentic-shoes.com/wp-content/uploads/2023/09/image-54-2048x711-2.webp",
     ];
     const currentIndex = ref(0);
+    const showChat = ref(false);
 
-    // Change slide every few seconds
-    const changeSlide = () => {
+  const changeSlide = () => {
       currentIndex.value = (currentIndex.value + 1) % images.length;
     };
 
-    // Start automatic slide change
-    onMounted(() => {
+  onMounted(() => {
       setInterval(changeSlide, 5000);
     });
 
-    // Manual slide navigation
-    const prevSlide = () => {
+  const prevSlide = () => {
       currentIndex.value =
         (currentIndex.value - 1 + images.length) % images.length;
     };
@@ -76,10 +82,10 @@ export default {
       currentIndex,
       prevSlide,
       nextSlide,
+      showChat
     };
   },
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
