@@ -10,6 +10,23 @@ import Payment from "../page/Payment.vue";
 export default createRouter({
   history: createWebHistory(),
   routes: [
+
+    {
+      path: "/payment/confirm",
+      name: "PaymentConfirm",
+      component: () => import("../page/PaymentConfirm.vue")
+    },
+    {
+      path: "/payment/processing",
+      name: "PaymentProcessing",
+      component: () => import("../page/PaymentProcessing.vue")
+    },
+    {
+      path: "/payment/result",
+      name: "PaymentResult",
+      component: () => import("../page/PaymentResult.vue")
+    },
+
     {
       path: "/",
       component: Home,

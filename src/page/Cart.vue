@@ -12,217 +12,103 @@
       >
         <div class="flex items-center">
           <button class="p-2 rounded" @click="removeItem(item.id, item.size)">
-            <font-awesome-icon :icon="['fas', 'circle-xmark']" />
+            <font-awesome-icon :icon="[ 'fas', 'circle-xmark' ]" />
           </button>
           <img :src="item.image" :alt="item.name" class="w-24 h-24 mx-4" />
-          <span :class="'font-bold max-w-80 line-clamp-3'">{{
-            item.name
-          }}</span>
+          <span class="font-bold max-w-80 line-clamp-3">{{ item.name }}</span>
         </div>
-        <span class="text-black font-semibold text-lg line-through">{{
-          formatPrice(item.price)
-        }}</span>
+        <span class="text-black font-semibold text-lg line-through">
+          {{ formatPrice(item.price) }}
+        </span>
 
         <div class="flex items-center">
-          <button
-            class="bg-gray-200 p-2 rounded"
-            @click="decrementQuantity(item)"
-          >
-            -
-          </button>
-          <span class="mx-2">{{ item.quantity }}</span>
-          <button
-            class="bg-gray-200 p-2 rounded"
-            @click="incrementQuantity(item)"
-          >
-            +
-          </button>
+          <button class="bg-gray-200 px-3 py-1" @click="decreaseQuantity(index)">-</button>
+          <span class="px-4">{{ item.quantity }}</span>
+          <button class="bg-gray-200 px-3 py-1" @click="increaseQuantity(index)">+</button>
         </div>
-        <span class="text-red-500 font-semibold text-lg">{{
-          formatPrice(discountedPrice(item))
-        }}</span>
-      </div>
-    </div>
 
-    <!-- Right side: Order Summary -->
-    <div class="p-6 rounded-lg self-end">
-      <div class="flex pb-2 border-b gap-2 justify-between">
-        <span>Tạm tính: </span>
-        <span>{{ formatPrice(subtotalPrice) }}</span>
+        <span class="text-red-600 font-semibold text-lg">
+          {{ formatPrice(item.price * item.quantity) }}
+        </span>
       </div>
 
-      <div class="flex gap-2 font-bold mt-2 items-center justify-between">
-        <span class="text-gray-500 font-medium">Giảm giá:</span>
-        <span class="text-black text-xl line-through">{{
-          formatPrice(totalDiscount)
-        }}</span>
+      <div class="text-right space-y-2 mt-6">
+        <p><strong>Tạm tính:</strong> {{ formatPrice(totalAmount) }}</p>
+        <p><strong>Giảm giá:</strong> 0₫</p>
+        <p class="text-xl"><strong>Tổng tiền:</strong> {{ formatPrice(totalAmount) }}</p>
       </div>
-      <div
-        class="flex gap-2 font-bold mt-2 border-b-2 pb-4 items-center justify-between"
-      >
-        <span class="text-gray-500 font-medium">Tổng tiền:</span>
-        <span class="text-black text-xl">{{ formatPrice(totalPrice) }}</span>
-      </div>
-      <div class="flex flex-row items-center justify-center gap-4 mt-4">
-        <router-link to="/">
-          <button
-            class="border-2 border-black px-4 py-1 uppercase font-semibold hover:bg-gray-800 hover:text-white"
-          >
-            <font-awesome-icon
-              class="mr-1 font-light"
-              :icon="['fas', 'arrow-left']"
-            />
-            Tiếp tục xem sản phẩm
-          </button>
-        </router-link>
+
+      <div class="flex justify-end gap-4 mt-6">
+        <router-link to="/" class="border border-black py-2 px-6 font-semibold">← TIẾP TỤC XEM SẢN PHẨM</router-link>
         <button
-          class="bg-black font-bold text-white py-1.5 text-center w-40 uppercase"
-          @click="checkLoginBeforePayment"
+          class="border border-black bg-black text-white py-2 px-6 font-semibold"
+          @click="goToConfirm"
         >
-          thanh toán
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Popup Modal -->
-  <div
-    v-if="showLoginPopup"
-    class="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center"
-  >
-    <div class="bg-white p-6 rounded-lg w-96">
-      <h2 class="font-bold text-lg mb-4">Bạn chưa đăng nhập</h2>
-      <p class="mb-4">Bạn cần phải đăng nhập để tiến hành thanh toán.</p>
-      <div class="flex flex-row gap-8">
-        <router-link
-          to="/login"
-          class="bg-gray-800 text-white py-2 px-4 rounded-md"
-        >
-          Đăng nhập</router-link
-        >
-        <button
-          @click="closePopup"
-          class="border border-black text-black py-2 px-8 rounded-md"
-        >
-          Hủy
+          THANH TOÁN
         </button>
       </div>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import cartService from "../services/cartServices";
-import userService from "../services/userSercices"; // Assuming you have a service to manage users
-export default {
-  name: "Cart",
+import userService from "../services/userSercices"; 
 
-  data() {
-    return {
-      cartItems: [],
-      showLoginPopup: false,
-      user: null,
-    };
-  },
-  computed: {
-    subtotalPrice() {
-      return this.cartItems.reduce(
-        (total, item) => total + item.price * item.quantity,
-        0
-      );
-    },
+const cartItems = ref([]);
+const router = useRouter();
 
-    totalDiscount() {
-      return this.cartItems.reduce(
-        (total, item) => total + item.price * item.discount * item.quantity,
-        0
-      );
-    },
-    
-    totalPrice() {
-      return this.cartItems.reduce(
-        (total, item) =>
-          total + item.price * item.quantity * (1 - item.discount),
-        0
-      );
-    },
-  },
+onMounted(() => {
+  cartItems.value = cartService.getCart();
+});
 
-  methods: {
+const totalAmount = computed(() =>
+  cartItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
+);
 
-    formatPrice(value) {
-      return (
-        new Intl.NumberFormat("vi-VN", {
-          minimumFractionDigits: 3,
-          maximumFractionDigits: 3,
-        }).format(value) + "đ"
-      );
-    },
-   
-    discountedPrice(product) {
-      return product.price * (1 - product.discount); 
-    },
-   
-    loadCart() {
-      this.cartItems = cartService.getCart();
-    },
- 
-    incrementQuantity(item) {
-      item.quantity += 1;
-      cartService.updateCart(this.cartItems); // Update cart in localStorage
-    },
-   
-    decrementQuantity(item) {
-      if (item.quantity > 1) {
-        item.quantity -= 1;
-        cartService.updateCart(this.cartItems); // Update cart in localStorage
-      }
-    },
-   
-    removeItem(itemId, size) {
-      cartService.removeFromCart(itemId, size);
-      this.loadCart();
-    },
-   
-    checkLoginBeforePayment() {
-      const user = userService.isLoggedIn();
-      if (!this.cartItems || this.cartItems.length === 0)
-        return alert("Your cart is currently empty.");
+const formatPrice = (price) => {
+  return price.toLocaleString("vi-VN") + "₫";
+};
 
-      if (!user) {
-        this.showLoginPopup = true;
-      } else {
-        this.user = user;
-        const orderId = Math.floor(10000000 + Math.random() * 90000000);
+const removeItem = (id, size) => {
+  cartService.removeFromCart(id, size);
+  cartItems.value = cartService.getCart();
+};
 
-        this.$router.push({
-          name: "Payment",
-          params: {
-            orderId: orderId,
-            totalPrice: this.totalPrice,
-            name: this.user.name,
-            address: this.user.address,
-          },
-        });
-        cartService.clearCart();
-      }
-    },
-    closePopup() {
-      this.showLoginPopup = false;
-    },
-  },
-  mounted() {
-    this.loadCart(); // Load cart items when component is mounted
-  },
+const increaseQuantity = (index) => {
+  cartItems.value[index].quantity++;
+  cartService.updateCart(cartItems.value);
+};
+
+const decreaseQuantity = (index) => {
+  if (cartItems.value[index].quantity > 1) {
+    cartItems.value[index].quantity--;
+    cartService.updateCart(cartItems.value);
+  }
+};
+
+const goToConfirm = () => {
+  if (cartItems.value.length === 0) {
+    alert("Giỏ hàng của bạn đang trống!");
+    return;
+  }
+
+  const user = userService.isLoggedIn();
+  if (!user) {
+    alert("Vui lòng đăng nhập trước khi thanh toán!");
+    return;
+  }
+
+  const order = {
+    id: Math.floor(Math.random() * 100000000),
+    name: user.name || "Khách chưa rõ tên",
+    address: user.address || "Chưa có địa chỉ",
+    total: totalAmount.value.toLocaleString("vi-VN") + "₫"
+  };
+
+  console.log("GO TO CONFIRM:", order);
+  router.push({ name: "PaymentConfirm", query: order });
 };
 </script>
-
-<style scoped>
-/* Add any custom styles for your modal */
-.fixed {
-  z-index: 9999;
-}
-.bg-gray-600 {
-  backdrop-filter: blur(5px);
-}
-</style>
