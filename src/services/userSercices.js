@@ -1,44 +1,52 @@
 import { ref } from "vue";
 import { EventEmitter } from "events";
+
 const eventEmitter = new EventEmitter();
 const isLoggedIn = ref(false);
+
 const userService = {
   eventEmitter,
+
+  // Lấy danh sách users đã đăng ký (nếu có)
   getUsers() {
     const users = localStorage.getItem("users");
     return users ? JSON.parse(users) : [];
   },
 
-  // Save users to localStorage
+  // Lưu lại danh sách users
   saveUsers(users) {
     localStorage.setItem("users", JSON.stringify(users));
   },
 
-  // Login user
+  // Đăng nhập
   login(user) {
-    // User found and logged in successfully
     this.setLoggedInUser(user);
-    eventEmitter.emit("userLoggedIn", user);
     isLoggedIn.value = true;
+    eventEmitter.emit("userLoggedIn", user);
     return user;
   },
 
-  // Check if a user is logged in (this could be expanded to include a session token, etc.)
+  // ✅ Trả về true nếu đang đăng nhập
   isLoggedIn() {
+    return !!localStorage.getItem("currentUser");
+  },
+
+  // ✅ Trả về object user nếu có
+  getUser() {
     const user = localStorage.getItem("currentUser");
     return user ? JSON.parse(user) : null;
   },
 
-  // Set the current logged-in user in localStorage
+  // Đặt user đang đăng nhập
   setLoggedInUser(user) {
     localStorage.setItem("currentUser", JSON.stringify(user));
   },
 
-  // Log out the current user
+  // Đăng xuất
   logout() {
     localStorage.removeItem("currentUser");
-    eventEmitter.emit("userLoggedOut");
     isLoggedIn.value = false;
+    eventEmitter.emit("userLoggedOut");
   },
 };
 

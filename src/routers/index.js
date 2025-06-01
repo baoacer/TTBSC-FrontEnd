@@ -6,6 +6,7 @@ import Login from "../page/Login.vue";
 import Register from "../page/Register.vue";
 import userService from "../services/userSercices";
 import Payment from "../page/Payment.vue";
+import Profile from "../page/Profile.vue";
 
 export default createRouter({
   history: createWebHistory(),
@@ -74,5 +75,12 @@ export default createRouter({
       name: "Payment",
       component: Payment,
     },
+
+    {
+      path: "/profile",
+      name: "Profile",
+      component: Profile,
+      meta: { requiresAuth: true }
+    }
   ],
 });

@@ -1,6 +1,5 @@
 <template>
   <div class="flex min-h-screen bg-gray-100">
-    <!-- Left side with an image or illustration (matching the login design) -->
     <div class="hidden lg:flex lg:w-1/2 items-center justify-center">
       <img
         src="https://brand.assets.adidas.com/image/upload/f_auto,q_auto,fl_lossy/if_w_gt_400,w_400/sportswear_fw24_zne_launch_mglp_carousel_mini_lookbook_4_d_b322bb6282.jpg"
@@ -9,7 +8,6 @@
       />
     </div>
 
-    <!-- Right side with the registration form -->
     <div class="flex flex-col justify-center w-full lg:w-1/2 p-12 bg-white">
       <div class="max-w-lg mx-auto">
         <h2 class="text-3xl font-semibold text-gray-800 text-center mb-6">
@@ -20,11 +18,8 @@
         </p>
         <form @submit.prevent="handleRegister">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <!-- Left column (Name, Email, Phone) -->
             <div>
-              <label for="name" class="block text-gray-700 mb-2"
-                >Full Name</label
-              >
+              <label for="name" class="block text-gray-700 mb-2">Full Name</label>
               <input
                 type="text"
                 id="name"
@@ -36,9 +31,7 @@
             </div>
 
             <div>
-              <label for="email" class="block text-gray-700 mb-2"
-                >Email Address</label
-              >
+              <label for="email" class="block text-gray-700 mb-2">Email Address</label>
               <input
                 type="email"
                 id="email"
@@ -50,9 +43,7 @@
             </div>
 
             <div>
-              <label for="phone" class="block text-gray-700 mb-2"
-                >Phone Number</label
-              >
+              <label for="phone" class="block text-gray-700 mb-2">Phone Number</label>
               <input
                 type="text"
                 id="phone"
@@ -63,11 +54,8 @@
               />
             </div>
 
-            <!-- Right column (Address, Password, Confirm Password) -->
             <div>
-              <label for="address" class="block text-gray-700 mb-2"
-                >Address</label
-              >
+              <label for="address" class="block text-gray-700 mb-2">Address</label>
               <input
                 type="text"
                 id="address"
@@ -79,9 +67,7 @@
             </div>
 
             <div>
-              <label for="password" class="block text-gray-700 mb-2"
-                >Password</label
-              >
+              <label for="password" class="block text-gray-700 mb-2">Password</label>
               <div class="relative">
                 <input
                   :type="passwordVisible ? 'text' : 'password'"
@@ -93,18 +79,14 @@
                 />
                 <font-awesome-icon
                   @click="togglePasswordVisibility"
-                  :icon="
-                    passwordVisible ? ['fas', 'eye'] : ['fas', 'eye-slash']
-                  "
+                  :icon="passwordVisible ? ['fas', 'eye'] : ['fas', 'eye-slash']"
                   class="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
                 />
               </div>
             </div>
 
             <div>
-              <label for="confirmPassword" class="block text-gray-700 mb-2">
-                Confirm Password
-              </label>
+              <label for="confirmPassword" class="block text-gray-700 mb-2">Confirm Password</label>
               <input
                 type="password"
                 id="confirmPassword"
@@ -125,7 +107,7 @@
           >
             Register
           </button>
-          
+
           <p class="mt-4 text-center">
             Already have an account?
             <router-link to="/login" class="text-blue-500 hover:text-blue-700">
@@ -137,9 +119,8 @@
     </div>
   </div>
 </template>
-<script>
-import axios from "axios";
 
+<script>
 export default {
   data() {
     return {
@@ -150,49 +131,43 @@ export default {
       password: "",
       confirmPassword: "",
       errorMessage: "",
-      passwordVisible: false, // Toggle for password visibility
+      passwordVisible: false,
     };
   },
   methods: {
-    handleRegister() {
+    async handleRegister() {
       if (this.password !== this.confirmPassword) {
         this.errorMessage = "Mật khẩu không chính xác.";
         return;
       }
 
-      // Create new user object
       const newUser = {
         name: this.name,
         email: this.email,
         phone: this.phone,
         address: this.address,
-        password: this.password, 
+        password: this.password,
       };
 
-      // Send POST request to register user
-      fetch("http://localhost:3000/user", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newUser),
-      })
-        .then((response) => {
-          if (response.ok) {
-            // Redirect to login page on successful registration
-            this.$router.push("/login");
-          } else {
-            // Handle errors (like email already exists or server issues)
-            return response.json().then((data) => {
-              this.errorMessage =
-                data.message || "An error occurred. Please try again.";
-            });
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-          this.errorMessage = "Đăng ký thấy bại vui lòng thử lại.";
+      try {
+        const response = await fetch('http://nguyenlequocbao.id.vn/v1/api/user/signUp', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(newUser)
         });
+
+        const data = await response.json();
+        if (response.ok) {
+          this.$router.push("/login");
+        } else {
+          this.errorMessage = data.message || "Đăng ký thất bại.";
+        }
+      } catch (error) {
+        console.error("Lỗi đăng ký:", error);
+        this.errorMessage = "Đăng ký thất bại. Vui lòng thử lại.";
+      }
     },
     togglePasswordVisibility() {
       this.passwordVisible = !this.passwordVisible;
