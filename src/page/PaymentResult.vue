@@ -1,35 +1,31 @@
+<script setup>
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+const status = route.query.vnp_TransactionStatus
+const orderId = route.query.vnp_TxnRef
+const amount = route.query.vnp_Amount
+
+const isSuccess = status === '00'
+</script>
 
 <template>
-  <div class="p-6 max-w-2xl mx-auto text-center">
-    <img src="https://cdn-icons-png.flaticon.com/512/845/845646.png" alt="success" class="w-24 h-24 mx-auto mb-4" />
-    <h1 class="text-3xl font-extrabold text-green-700 mb-2">ĐẶT HÀNG THÀNH CÔNG</h1>
-    <p class="mb-6 text-gray-600">Cảm ơn bạn đã mua sắm tại cửa hàng chúng tôi.</p>
+  <div class="p-8 text-center">
+    <h1 :class="isSuccess ? 'text-green-600' : 'text-red-600'" class="text-3xl font-bold mb-4">
+      {{ isSuccess ? 'THANH TOÁN THÀNH CÔNG' : 'THANH TOÁN THẤT BẠI' }}
+    </h1>
 
-    <div class="bg-white p-6 shadow-md rounded border text-left max-w-lg mx-auto">
-      <h2 class="text-lg font-bold text-green-600 mb-4 text-center">Chi tiết đơn hàng</h2>
-      <p><strong>Mã Đơn Hàng:</strong> {{ order.id }}</p>
-      <p><strong>Tên Khách Hàng:</strong> {{ order.name }}</p>
-      <p><strong>Địa Chỉ Nhận Hàng:</strong> {{ order.address }}</p>
-      <p><strong>Tổng Tiền:</strong> {{ order.total }}</p>
+    <p class="text-lg">Mã đơn hàng: {{ orderId }}</p>
+    <p class="text-lg">Trạng thái: {{ isSuccess ? 'Thành công' : 'Thất bại' }}</p>
+    <p class="text-lg mt-4">
+      <span v-if="isSuccess" class="text-green-600">Cảm ơn bạn đã thanh toán!</span>
+      <span v-else class="text-red-600">Vui lòng thử lại hoặc liên hệ hỗ trợ.</span>
+    </p>
+
+    <div class="mt-8">
+      <router-link to="/" class="text-blue-600 hover:underline">🏠 Quay lại trang chủ</router-link>
+      <router-link to="/payments" class="ml-4 text-blue-600 hover:underline">📦 Xem đơn hàng</router-link>
+      <router-link to="/contact" class="ml-4 text-blue-600 hover:underline">📞 Liên hệ hỗ trợ</router-link>
     </div>
-
-    <a href="/" class="inline-block mt-6 text-blue-600 underline">
-  Quay về trang chủ
-</a>
-
   </div>
 </template>
-
-<script setup>
-localStorage.removeItem('store'); // 🧹 Clear cart after payment
-import { useRoute } from 'vue-router';
-
-const route = useRoute();
-
-const order = {
-  id: route.query.id,
-  name: route.query.name,
-  address: route.query.address,
-  total: route.query.total
-};
-</script>

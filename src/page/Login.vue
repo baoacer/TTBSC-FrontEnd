@@ -105,6 +105,7 @@ export default {
         }
 
         // ✅ Lưu user vào localStorage
+       userService.setLoggedInUser(user);
         localStorage.setItem("user", JSON.stringify(user));
 
         // ✅ Phát sự kiện cho Header biết đã đăng nhập
