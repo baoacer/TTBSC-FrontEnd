@@ -71,7 +71,7 @@ export default createRouter({
       component: Cart,
     },
     {
-      path : "/payment",
+      path: "/payment/:orderId/:totalPrice/:name/:address",
       name: "Payment",
       component: Payment,
     },

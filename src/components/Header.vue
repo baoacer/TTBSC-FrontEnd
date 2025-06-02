@@ -13,7 +13,7 @@
             alt="Logo"
             class="w-32 h-18 object-cover"
           />
-        </router-link> 
+        </router-link>
       </div>
 
       <div class="flex items-center justify-end space-x-4 basis-1/3 relative">

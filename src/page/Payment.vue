@@ -1,55 +1,88 @@
 <template>
   <div class="flex flex-col items-center justify-center min-h-screen p-10">
-    <!-- Thanh toán lựa chọn -->
-    <div class="mb-6 w-full max-w-lg">
-      <label class="block text-lg font-semibold text-gray-700 mb-2">Chọn phương thức thanh toán:</label>
-      <select v-model="paymentMethod" class="border rounded w-full p-2">
-        <option value="COD">Thanh toán khi nhận hàng (COD)</option>
-        <option value="VNPAY">Thanh toán qua VNPAY</option>
-      </select>
+    <!-- Checkmark Icon with Modern Animation -->
+    <div
+      class="flex items-center justify-center bg-gradient-to-br from-blue-200 to-teal-300 p-8 rounded-full mb-12 shadow-lg animate-bounce"
+    >
+      <svg
+        class="w-28 h-28 text-teal-700"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="3"
+          d="M5 13l4 4L19 7"
+        />
+      </svg>
     </div>
 
-    <!-- Nút đặt hàng -->
-    <button
-      @click="order"
-      class="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-300"
+    <!-- Congratulatory Message with Modern Style -->
+    <div class="text-center mb-10 max-w-3xl w-full">
+      <h1 class="text-5xl font-extrabold text-gray-800 mb-6 tracking-tight">
+       ĐẶT HÀNG THÀNH CÔNG
+      </h1>
+      <p class="text-xl text-gray-600">Cảm ơn bạn đã mua sắm tại cửa hàng chúng tôi.</p>
+    </div>
+
+    <!-- Order Information with a Glassmorphism Card Style -->
+    <div
+      class="bg-white/70 backdrop-blur-sm border-l-8 border-teal-400 shadow-xl rounded-2xl p-10 w-full max-w-xl mb-14"
     >
-      Đặt hàng
-    </button>
+      <h3 class="text-2xl font-semibold text-teal-700 text-center mb-6">
+        Chi tiết đơn hàng
+      </h3>
+      <div class="text-gray-800 space-y-5 text-lg leading-relaxed">
+        <p><strong>Mã Đơn Hàng:</strong> {{ orderId }}</p>
+        <p><strong>Tên Khách Hàng:</strong> {{ name }}</p>
+        <p><strong>Địa Chỉ Nhận Hàng:</strong> {{ address }}</p>
+        <p><strong>Tổng Giá Trị Đơn Hàng:</strong> {{ formatPrice(totalPrice) }}</p>
+      </div>
+    </div>
+
+    <!-- Call-to-Action Buttons with Modern Animation -->
+    <div class="flex gap-6">
+      <router-link to="/">
+        <button
+          class="bg-gradient-to-r from-blue-500 to-teal-600 hover:from-teal-500 hover:to-blue-600 text-white font-bold py-4 px-12 rounded-full shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out transform hover:scale-105"
+        >
+          Trở về Trang Chủ
+        </button>
+      </router-link>
+    </div>
   </div>
 </template>
 
 <script>
-import axios from "axios";
 export default {
+  name: "Payment",
+
   data() {
     return {
-      cartID: this.$route.query.cartID || "",
-      userID: this.$route.query.userID || "",
-      paymentMethod: "COD"
+      orderId: "",
+      name: "",
+      address: "",
+      totalPrice: 0,
     };
   },
   methods: {
-    async order() {
-      try {
-        const res = await axios.post("http://nguyenlequocbao.id.vn/v1/api/checkout/order", {
-          cartID: this.cartID,
-          userID: this.userID,
-          payment: this.paymentMethod
-        });
-
-        if (this.paymentMethod === "VNPAY" && res.data?.url) {
-          window.location.href = res.data.url;
-        } else {
-          this.$router.push("/payment-result?success=true");
-        }
-      } catch (err) {
-        console.error("Lỗi đặt hàng:", err);
-        this.$router.push("/payment-result?success=false");
+    formatPrice(price) {
+      if (isNaN(price) || price < 0) {
+        return "0₫";
       }
-    }
-  }
+      return price.toLocaleString("vi-VN") + "₫";
+    },
+  },
+  mounted() {
+    const { orderId, totalPrice, name, address } = this.$route.params;
+
+    this.totalPrice = totalPrice ? parseFloat(totalPrice) : 0;
+    this.orderId = orderId || "";
+    this.name = name || "";
+    this.address = address || "";
+  },
 };
 </script>
-
-<style scoped></style>
