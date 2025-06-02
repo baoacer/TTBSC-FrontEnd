@@ -14,7 +14,7 @@
           <button class="p-2 rounded" @click="removeItem(item.id, item.size)">
             <font-awesome-icon :icon="[ 'fas', 'circle-xmark' ]" />
           </button>
-          <img :src="item.image" :alt="item.name" class="w-24 h-24 mx-4" />
+          <img :src="item.image" :alt="item.name" class="w-24 h-24 mx-4" @error="onImageError($event)" />
           <span class="font-bold max-w-80 line-clamp-3">{{ item.name }}</span>
         </div>
         <span class="text-black font-semibold text-lg line-through">
@@ -60,16 +60,25 @@ import userService from "../services/userSercices";
 const cartItems = ref([]);
 const router = useRouter();
 
+function onImageError(event) {
+  event.target.src = "https://via.placeholder.com/100x100.png?text=No+Image"
+}
+
 onMounted(() => {
   cartItems.value = cartService.getCart();
 });
 
-const totalAmount = computed(() =>
-  cartItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
-);
+const totalAmount = computed(() => {
+  return cartItems.value.reduce((sum, item) => {
+    const price = Number(item.price) || 0;
+    const quantity = Number(item.quantity) || 0;
+    return sum + price * quantity;
+  }, 0);
+});
 
 const formatPrice = (price) => {
-  return price.toLocaleString("vi-VN") + "₫";
+  const number = Number(price) || 0;
+  return number.toLocaleString("vi-VN") + "₫";
 };
 
 const removeItem = (id, size) => {
@@ -95,20 +104,27 @@ const goToConfirm = () => {
     return;
   }
 
-  const user = userService.isLoggedIn();
+  const user = userService.getUser();
   if (!user) {
     alert("Vui lòng đăng nhập trước khi thanh toán!");
     return;
   }
 
+  const total = totalAmount.value;
   const order = {
     id: Math.floor(Math.random() * 100000000),
-    name: user.name || "Khách chưa rõ tên",
-    address: user.address || "Chưa có địa chỉ",
-    total: totalAmount.value.toLocaleString("vi-VN") + "₫"
+    name: user.name,
+    address: user.address,
+    userID: user.id,
+    cartID: "LOCAL_CART",
+    payment: "VNPAY",
+    totalDisplay: formatPrice(total),
+    total: total
   };
 
   console.log("GO TO CONFIRM:", order);
   router.push({ name: "PaymentConfirm", query: order });
 };
 </script>
+
+localStorage.setItem('cartID', yourCartIDHere); // TODO: thay bằng ID thực tế

@@ -17,7 +17,7 @@
 
 <script>
 import axios from "axios";
-import ProductCard from "./ProductCard.vue"; 
+import ProductCard from "./ProductCard.vue";
 import Pagination from "../Pagination.vue";
 
 export default {
@@ -31,7 +31,7 @@ export default {
       products: [],
       currentPage: 1,
       itemsPerPage: 8,
-      totalPages: 1, // Initialize to 1 to avoid initial issues
+      totalPages: 1,
     };
   },
   computed: {
@@ -41,7 +41,6 @@ export default {
     },
   },
   watch: {
-    // Watch products array for changes to update totalPages
     products(newProducts) {
       this.calculateTotalPages(newProducts);
     },
@@ -49,10 +48,10 @@ export default {
   methods: {
     async fetchProducts() {
       try {
-        const response = await axios.get("http://localhost:3000/products"); // Replace with your actual API endpoint
-        this.products = response.data;
-        console.log("Products fetched:", this.products.length); // Debugging line
-        // Calculate total pages after fetching the products
+        const response = await axios.get(
+          "http://nguyenlequocbao.id.vn/v1/api/product"
+        );
+        this.products = response.data.data; // ✅ Truy cập đúng mảng sản phẩm
         this.calculateTotalPages(this.products);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -74,4 +73,6 @@ export default {
 };
 </script>
 
-<style></style>
+<style scoped>
+/* Tuỳ chọn: bạn có thể thêm animation khi chuyển trang */
+</style>

@@ -1,6 +1,5 @@
 <template>
   <div class="flex min-h-screen bg-gray-100">
-    <!-- Left side with an image or illustration -->
     <div class="hidden lg:flex lg:w-1/2 items-center justify-center">
       <img
         src="https://brand.assets.adidas.com/image/upload/f_auto,q_auto,fl_lossy/if_w_gt_400,w_400/sportswear_fw24_zne_launch_mglp_carousel_mini_lookbook_1_d_762141e477.jpg"
@@ -9,7 +8,6 @@
       />
     </div>
 
-    <!-- Right side with the login form -->
     <div class="flex flex-col justify-center w-full lg:w-1/2 p-12 bg-white">
       <div class="max-w-md mx-auto">
         <h2 class="text-3xl font-semibold text-gray-800 text-center mb-6">
@@ -32,9 +30,7 @@
           </div>
 
           <div class="mb-6">
-            <label for="password" class="block text-gray-700 mb-2"
-              >Password</label
-            >
+            <label for="password" class="block text-gray-700 mb-2">Password</label>
             <input
               type="password"
               id="password"
@@ -78,12 +74,12 @@
     </div>
   </div>
 </template>
+
 <script>
 import axios from "axios";
 import userService from "../services/userSercices";
 
 export default {
-  
   data() {
     return {
       email: "",
@@ -92,27 +88,36 @@ export default {
     };
   },
   methods: {
-  
     async handleLogin() {
       try {
-        
-        const response = await axios.get(
-          `http://localhost:3000/user?email=${this.email}&password=${this.password}`
+        const response = await axios.post(
+          "http://nguyenlequocbao.id.vn/v1/api/user/login",
+          {
+            email: this.email,
+            password: this.password,
+          }
         );
 
-        // Check if the response contains matching users
-        if (response.data.length === 0) {
-          return (this.errorMessage = "Invalid email or password.");
+        const user = response.data?.data?.user;
+        if (!user) {
+          this.errorMessage = "Tài khoản không hợp lệ.";
+          return;
         }
-        const user = response.data[0];
-        userService.login(user);
 
+        // ✅ Lưu user vào localStorage
+       userService.setLoggedInUser(user);
+
+
+        // ✅ Phát sự kiện cho Header biết đã đăng nhập
+        userService.eventEmitter.emit("userLoggedIn");
+
+        // ✅ Điều hướng sau khi login
         this.$router.push("/");
+
       } catch (error) {
-        // Handle errors
-        this.errorMessage = error.response
-          ? error.response.data.message
-          : error.message;
+        console.error("Login error:", error);
+        this.errorMessage =
+          error.response?.data?.message || "Network error or invalid login.";
       }
     },
   },
