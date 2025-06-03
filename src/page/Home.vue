@@ -54,9 +54,7 @@ export default {
   setup() {
     // Image Slider Setup
     const images = [
-      "https://pos.nvncdn.com/eb9ddb-116318/bn/20220324_Oh53NJJ4ig1sNzfa7mH5CDRp.jpg",
-      "https://cdn.authentic-shoes.com/wp-content/uploads/2024/10/20240926111113-0.webp",
-      "https://cdn.authentic-shoes.com/wp-content/uploads/2023/09/image-54-2048x711-2.webp",
+      "https://pos.nvncdn.com/eb9ddb-116318/bn/20220324_Oh53NJJ4ig1sNzfa7mH5CDRp.jpg"
     ];
     const currentIndex = ref(0);
     const showChat = ref(false);

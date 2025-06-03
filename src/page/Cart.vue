@@ -11,7 +11,7 @@
         class="flex items-center justify-between mb-4 border-b pb-4"
       >
         <div class="flex items-center">
-          <button class="p-2 rounded" @click="removeItem(item._id, item.size)">
+          <button class="p-2 rounded" @click="removeItem(item._id)">
             <font-awesome-icon :icon="['fas', 'circle-xmark']" />
           </button>
           <img :src="item.image" :alt="item.name" class="w-24 h-24 mx-4" />
@@ -120,9 +120,31 @@ const formatPrice = (price) => {
   return price.toLocaleString("vi-VN") + "₫";
 };
 
-const removeItem = (id, size) => {
-  cartService.removeFromCart(id, size);
-  cartItems.value = cartService.getCart();
+const removeItem = async (productID) => {
+  try {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) {
+      alert("Bạn chưa đăng nhập!");
+      return;
+    }
+    console.log(user._id, productID)
+    await fetch("http://nguyenlequocbao.id.vn/v1/api/cart", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userID: user._id,
+        productID: productID
+      }),
+    });
+    // Sau khi xóa, reload lại giỏ hàng và review
+    const cartData = await cartService.getCart();
+    cartItems.value = cartData.cart_products || [];
+    if (cartData._id) {
+      await fetchReview(cartData._id);
+    }
+  } catch (e) {
+    alert("Xóa sản phẩm thất bại!");
+  }
 };
 
 const increaseQuantity = async (index) => {
