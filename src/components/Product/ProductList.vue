@@ -74,5 +74,4 @@ export default {
 </script>
 
 <style scoped>
-/* Tuỳ chọn: bạn có thể thêm animation khi chuyển trang */
 </style>

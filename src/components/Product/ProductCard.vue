@@ -42,7 +42,7 @@
 
     <!-- Thông tin sản phẩm -->
     <div class="text-center mt-4">
-      <div class="text-gray-500 text-xs">{{ product.category }}</div>
+      <div class="text-gray-500 text-xs">{{ categoryName }}</div>
       <div class="text-violet-800 text-sm font-semibold">
         {{ product.name }}
       </div>
@@ -75,6 +75,7 @@ export default {
   data() {
     return {
       hovered: false,
+      categoryName: "",
     };
   },
   computed: {
@@ -84,12 +85,41 @@ export default {
         : this.product.price;
     },
   },
+  watch: {
+    product: {
+      immediate: true,
+      handler(newVal) {
+        if (newVal && newVal.category) {
+          this.fetchCategoryName(newVal.category);
+        }
+      },
+    },
+  },
   methods: {
+    async fetchCategoryName(categoryId) {
+      try {
+        const res = await fetch(
+          `http://nguyenlequocbao.id.vn/v1/api/category/${categoryId}`,
+          {
+            method: "GET", 
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+        const data = await res.json();
+        if (data && data.data && data.data.name) {
+          this.categoryName = data.data.name;
+        } else {
+          this.categoryName = categoryId;
+        }
+      } catch {
+        this.categoryName = categoryId;
+      }
+    },
     handleAddToCart() {
       const productWithSize = {
         ...this.product,
-        name: this.product.name + ` - ${this.product.sizes?.[0] || 'Default'}`,
-        size: this.product.sizes?.[0] || 'Default',
+        name: this.product.name + ` - ${this.product.sizes?.[0] || "Default"}`,
+        size: this.product.sizes?.[0] || "Default",
       };
       cartServices.addToCart(productWithSize);
       alert(`${this.product.name} đã được thêm vào giỏ hàng!`);
@@ -103,7 +133,6 @@ export default {
   },
 };
 </script>
-
 <style scoped>
 .ribbon {
   font-size: 12px;
