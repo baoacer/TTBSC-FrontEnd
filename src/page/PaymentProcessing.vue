@@ -19,10 +19,40 @@ const totalDisplay = computed(() => {
   return num.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 });
 
-onMounted(() => {
-  setTimeout(() => {
-    router.push({ name: 'PaymentResult', query: route.query });
-  }, 3000);
+onMounted(async () => {
+  const cartID = localStorage.getItem('cartID')
+  const userID = JSON.parse(localStorage.getItem('user'))._id
+
+  console.log(userID, route.query.payment)
+
+  const res = await fetch("http://nguyenlequocbao.id.vn/v1/api/checkout/order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      cartID,
+      userID,
+      payment: route.query.payment
+    }),
+  });
+  const data = await res.json();
+
+  if (data && data.data) {
+    if (typeof data.data === "string") {
+      window.location.href = data.data;
+    } else if (typeof data.data === "object") {
+      router.replace({
+        name: "PaymentResult",
+        query: {
+          vnp_TransactionStatus: "00",
+          vnp_TxnRef: data.data._id,
+          vnp_Amount: data.data.order_checkout,
+          cod: "true"
+        }
+      });
+    }
+  } else {
+    alert("Không lấy được kết quả thanh toán!");
+  }
 });
 </script>
 <style scoped>  

@@ -32,6 +32,7 @@
               class="absolute right-0 mt-2 w-32 z-10 bg-white shadow-lg rounded-md"
             >
               <router-link to="/profile" class="block px-4 py-2 text-black hover:bg-gray-200">Profile</router-link>
+              <router-link to="/history" class="block px-4 py-2 text-black hover:bg-gray-200">History</router-link>
               <a
                 href="#"
                 @click.prevent="logout"
@@ -97,12 +98,12 @@ export default {
     const dropdownRef = ref(null);
     const isLoggedIn = ref(!!localStorage.getItem("user"));
 
-    const updateTotalItems = () => {
-      totalItems.value = cartService.getTotalItems();
+    const updateTotalItems = async () => {
+      totalItems.value = await cartService.getTotalItems();
     };
 
     const logout = () => {
-      localStorage.removeItem("user");
+      localStorage.clear();
       showDropdown.value = false;
       isLoggedIn.value = false;
       window.location.href = "/login";

@@ -7,25 +7,26 @@ import Register from "../page/Register.vue";
 import userService from "../services/userSercices";
 import Payment from "../page/Payment.vue";
 import Profile from "../page/Profile.vue";
+import PaymentResult from "../page/PaymentResult.vue";
+import History from "../page/History.vue";
 
 export default createRouter({
   history: createWebHistory(),
   routes: [
-
     {
       path: "/payment/confirm",
       name: "PaymentConfirm",
-      component: () => import("../page/PaymentConfirm.vue")
+      component: () => import("../page/PaymentConfirm.vue"),
     },
     {
       path: "/payment/processing",
       name: "PaymentProcessing",
-      component: () => import("../page/PaymentProcessing.vue")
+      component: () => import("../page/PaymentProcessing.vue"),
     },
     {
       path: "/payment/result",
       name: "PaymentResult",
-      component: () => import("../page/PaymentResult.vue")
+      component: () => import("../page/PaymentResult.vue"),
     },
 
     {
@@ -71,16 +72,25 @@ export default createRouter({
       component: Cart,
     },
     {
+      path: "/history",
+      name: "History",
+      component: History,
+    },
+    {
       path: "/payment/:orderId/:totalPrice/:name/:address",
       name: "Payment",
       component: Payment,
     },
-
+    {
+      path: "/payment-result",
+      name: "PaymentResult",
+      component: PaymentResult,
+    },
     {
       path: "/profile",
       name: "Profile",
       component: Profile,
-      meta: { requiresAuth: true }
-    }
+      meta: { requiresAuth: true },
+    },
   ],
 });

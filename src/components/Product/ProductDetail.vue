@@ -122,14 +122,7 @@ export default defineComponent({
         alert("Vui lòng chọn kích thước.");
         return;
       }
-
-      const productWithSize = {
-        ...this.product,
-        name: this.product.name + ` - ${this.selectedSize}`,
-        size: this.selectedSize,
-      };
-
-      cartServices.addToCart(productWithSize);
+      cartServices.addToCart(this.product, 1);
       alert(
         `${this.product.name} (Size: ${this.selectedSize}) đã được thêm vào giỏ hàng!`
       );
