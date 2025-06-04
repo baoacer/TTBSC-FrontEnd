@@ -55,10 +55,11 @@ function formatPrice(value) {
       </span>
     </p>
 
-    <div class="mt-8">
-      <router-link to="/" class="text-blue-600 hover:underline"
-        >🏠 Quay lại trang chủ</router-link
-      >
-    </div>
+    <a
+  href="/"
+  class="text-blue-600 hover:underline"
+>
+  🏠 Quay lại trang chủ
+</a>
   </div>
 </template>
