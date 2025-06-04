@@ -81,6 +81,8 @@ import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import cartService from "../services/cartServices";
 import userService from "../services/userSercices";
+import { useToast } from "vue-toast-notification";
+const toast = useToast();
 
 const cartItems = ref([]);
 const review = ref({
@@ -97,7 +99,6 @@ onMounted(async () => {
     await fetchReview(cartData._id);
   } catch (error) {
     cartItems.value = [];
-    alert("Không thể tải giỏ hàng!");
   }
 });
 
@@ -124,7 +125,10 @@ const removeItem = async (productID) => {
   try {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user) {
-      alert("Bạn chưa đăng nhập!");
+      toast.open({
+        message: "Bạn chưa đăng nhập",
+        type: "error"
+    })
       return;
     }
     console.log(user._id, productID)
@@ -139,11 +143,15 @@ const removeItem = async (productID) => {
     // Sau khi xóa, reload lại giỏ hàng và review
     const cartData = await cartService.getCart();
     cartItems.value = cartData.cart_products || [];
+    debugger
     if (cartData._id) {
       await fetchReview(cartData._id);
     }
   } catch (e) {
-    alert("Xóa sản phẩm thất bại!");
+    this.$toast.open({
+      message: "Xóa sản phẩm thất bại",
+      type: "error"
+    })
   }
 };
 
@@ -174,13 +182,19 @@ const decreaseQuantity = async (index) => {
 
 const goToConfirm = () => {
   if (cartItems.value.length === 0) {
-    alert("Giỏ hàng của bạn đang trống!");
+    toast.open({
+      message: "Giỏ hàng của bạn đang trống",
+      type: "error"
+    })
     return;
   }
 
   const isLogin = userService.isLoggedIn();
   if (!isLogin) {
-    alert("Vui lòng đăng nhập trước khi thanh toán!");
+    toast.open({
+      message: "Vui lòng đăng nhập trước khi thanh toán!",
+      type: "error"
+    })
     return;
   }
 

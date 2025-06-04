@@ -121,6 +121,8 @@
 </template>
 
 <script>
+import { useToast } from "vue-toast-notification";
+const toast = useToast();
 export default {
   data() {
     return {
@@ -137,7 +139,10 @@ export default {
   methods: {
     async handleRegister() {
       if (this.password !== this.confirmPassword) {
-        this.errorMessage = "Mật khẩu không chính xác.";
+        toast.open({
+          message: "Mật khẩu không khớp",
+          type: "error"
+        });
         return;
       }
 
@@ -162,7 +167,10 @@ export default {
         if (response.ok) {
           this.$router.push("/login");
         } else {
-          this.errorMessage = data.message || "Đăng ký thất bại.";
+          toast.open({
+            message: `${data.message.replace(/^ValidationError:\s*/i, "")}`,
+            type: "error"
+          });
         }
       } catch (error) {
         console.error("Lỗi đăng ký:", error);

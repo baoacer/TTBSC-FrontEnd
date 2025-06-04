@@ -43,7 +43,7 @@
                 'border px-3 py-1 mx-1',
                 selectedSize === size
                   ? 'border-gray-500 bg-black text-white'
-                  : 'border-gray-300'
+                  : 'border-gray-300',
               ]"
             >
               {{ size }}
@@ -76,8 +76,7 @@
 
             <div class="border-t border-gray-300 pt-2 pb-2">
               Mô tả: {{ product.description }}
-            </div>            
-
+            </div>
           </div>
         </div>
       </div>
@@ -118,14 +117,26 @@ export default defineComponent({
       }).format(value);
     },
     handleAddToCart() {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user) {
+        this.$toast.open({
+          message: "Bạn chưa đăng nhập",
+          type: "error"
+        })
+        return;
+      }
       if (!this.selectedSize) {
-        alert("Vui lòng chọn kích thước.");
+        this.$toast.open({
+          message: "Vui lòng chọn kích thước",
+          type: "error",
+        });
         return;
       }
       cartServices.addToCart(this.product, 1);
-      alert(
-        `${this.product.name} (Size: ${this.selectedSize}) đã được thêm vào giỏ hàng!`
-      );
+      this.$toast.open({
+        message: `${this.product.name} (Size: ${this.selectedSize}) đã được thêm vào giỏ hàng!`,
+        type: "success",
+      });
     },
   },
   setup() {

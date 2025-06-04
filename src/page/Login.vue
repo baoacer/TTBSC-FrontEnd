@@ -78,6 +78,8 @@
 <script>
 import axios from "axios";
 import userService from "../services/userSercices";
+import { useToast } from "vue-toast-notification";
+const toast = useToast();
 
 export default {
   data() {
@@ -100,12 +102,14 @@ export default {
 
         const user = response.data?.data?.user;
         if (!user) {
-          this.errorMessage = "Tài khoản không hợp lệ.";
+          toast.open({
+            message: "Tài khoản không hợp lệ.",
+            type: "error"
+          });
           return;
         }
 
-        // ✅ Lưu user vào localStorage
-       userService.setLoggedInUser(user);
+        userService.setLoggedInUser(user);
         localStorage.setItem("user", JSON.stringify(user));
 
         // ✅ Phát sự kiện cho Header biết đã đăng nhập
@@ -116,8 +120,10 @@ export default {
 
       } catch (error) {
         console.error("Login error:", error);
-        this.errorMessage =
-          error.response?.data?.message || "Network error or invalid login.";
+        toast.open({
+          message: `${error.response?.data?.message.replace(/^Error:\s*/i, "")}`,
+          type: "error"
+        });
       }
     },
   },

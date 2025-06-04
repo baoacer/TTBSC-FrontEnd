@@ -15,6 +15,9 @@ import { faEye as faEyeSolid } from "@fortawesome/free-solid-svg-icons";
 import { faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { faCaretRight } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft, faLocationDot } from "@fortawesome/free-solid-svg-icons";
+import VueToast from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-sugar.css';
+
 import {
   faHouseChimney,
   faMagnifyingGlass,
@@ -53,5 +56,6 @@ library.add(
 
 createApp(App)
   .use(routers)
+  .use(VueToast)
   .component("font-awesome-icon", FontAwesomeIcon)
   .mount("#app");
