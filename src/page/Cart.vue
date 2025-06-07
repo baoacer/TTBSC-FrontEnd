@@ -11,11 +11,14 @@
         class="flex items-center justify-between mb-4 border-b pb-4"
       >
         <div class="flex items-center">
-          <button class="p-2 rounded" @click="removeItem(item._id)">
+          <button class="p-2 rounded" @click="removeItem(item._id, item.size)">
             <font-awesome-icon :icon="['fas', 'circle-xmark']" />
           </button>
           <img :src="item.image" :alt="item.name" class="w-24 h-24 mx-4" />
-          <span class="font-bold max-w-80 line-clamp-3">{{ item.name }}</span>
+          <div>
+            <span class="font-bold max-w-80 line-clamp-3">{{ item.name }}</span>
+            <div class="text-gray-500 text-sm mt-1">Size: {{ item.size }}</div>
+          </div>  
         </div>
 
         <!-- Hiển thị giá gốc nếu có giảm giá -->
@@ -121,37 +124,38 @@ const formatPrice = (price) => {
   return price.toLocaleString("vi-VN") + "₫";
 };
 
-const removeItem = async (productID) => {
+const removeItem = async (productID, size) => {
   try {
-    const user = JSON.parse(localStorage.getItem('user'));
+    const user = JSON.parse(localStorage.getItem("user"));
     if (!user) {
       toast.open({
         message: "Bạn chưa đăng nhập",
-        type: "error"
-    })
+        type: "error",
+      });
       return;
     }
-    console.log(user._id, productID)
+    console.log(user._id, productID);
     await fetch("http://nguyenlequocbao.id.vn/v1/api/cart", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userID: user._id,
-        productID: productID
+        productID: productID,
+        size: size,
       }),
     });
     // Sau khi xóa, reload lại giỏ hàng và review
     const cartData = await cartService.getCart();
     cartItems.value = cartData.cart_products || [];
-    debugger
+    debugger;
     if (cartData._id) {
       await fetchReview(cartData._id);
     }
   } catch (e) {
     this.$toast.open({
       message: "Xóa sản phẩm thất bại",
-      type: "error"
-    })
+      type: "error",
+    });
   }
 };
 
@@ -184,8 +188,8 @@ const goToConfirm = () => {
   if (cartItems.value.length === 0) {
     toast.open({
       message: "Giỏ hàng của bạn đang trống",
-      type: "error"
-    })
+      type: "error",
+    });
     return;
   }
 
@@ -193,12 +197,12 @@ const goToConfirm = () => {
   if (!isLogin) {
     toast.open({
       message: "Vui lòng đăng nhập trước khi thanh toán!",
-      type: "error"
-    })
+      type: "error",
+    });
     return;
   }
 
-  const user = JSON.parse(localStorage.getItem('user'))
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const order = {
     name: user.name || "Khách chưa rõ tên",

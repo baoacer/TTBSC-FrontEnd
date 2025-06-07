@@ -15,7 +15,6 @@ const cartService = {
 
   async getTotalItems() {
     const cartData = await this.getCart();
-    console.log('cart', cartData)
     if (
       cartData &&
       Array.isArray(cartData.cart_products)
@@ -39,6 +38,7 @@ const cartService = {
       product: {
         id: product._id,
         quantity: quantity,
+        size: product.size
       },
     };
     const result = await axios.post(

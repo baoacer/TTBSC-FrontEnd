@@ -49,6 +49,7 @@
             <img :src="item.image" :alt="item.name" class="w-16 h-16 mr-4" />
             <div>
               <div class="font-bold">{{ item.name }}</div>
+              <div>Size: {{ item.size }}</div>
               <div>Số lượng: {{ item.quantity }}</div>
               <div>Giá: {{ formatPrice(item.price) }}</div>
               <div v-if="item.discount > 0" class="text-sm text-gray-500">
