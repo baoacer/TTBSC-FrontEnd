@@ -33,6 +33,7 @@
             >
               <router-link to="/profile" class="block px-4 py-2 text-black hover:bg-gray-200">Profile</router-link>
               <router-link to="/history" class="block px-4 py-2 text-black hover:bg-gray-200">History</router-link>
+              <router-link to="/admin/products" class="block px-4 py-2 text-black hover:bg-gray-200">Quản Lý Admin</router-link>
               <a
                 href="#"
                 @click.prevent="logout"
