@@ -133,7 +133,7 @@ export default defineComponent({
         return;
       }
       this.product.size = this.selectedSize
-
+      debugger
       cartServices.addToCart(this.product, 1);
       this.$toast.open({
         message: `${this.product.name} (Size: ${this.selectedSize}) đã được thêm vào giỏ hàng!`,

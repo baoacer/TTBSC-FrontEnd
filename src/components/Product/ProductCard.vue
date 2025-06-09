@@ -96,6 +96,7 @@ export default {
     },
   },
   methods: {
+    // TODO: convert data to metadata
     async fetchCategoryName(categoryId) {
       try {
         const res = await fetch(

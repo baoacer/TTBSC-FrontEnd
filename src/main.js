@@ -15,8 +15,8 @@ import { faEye as faEyeSolid } from "@fortawesome/free-solid-svg-icons";
 import { faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { faCaretRight } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft, faLocationDot } from "@fortawesome/free-solid-svg-icons";
-import VueToast from 'vue-toast-notification';
-import 'vue-toast-notification/dist/theme-sugar.css';
+import Vue3Toastify, { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
 
 import {
   faHouseChimney,
@@ -56,6 +56,12 @@ library.add(
 
 createApp(App)
   .use(routers)
-  .use(VueToast)
+  .use(Vue3Toastify, {
+    autoClose: 3000,
+    position: "top-right"
+  })
   .component("font-awesome-icon", FontAwesomeIcon)
   .mount("#app");
+
+
+export { toast }

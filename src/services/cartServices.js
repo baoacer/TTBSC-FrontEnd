@@ -2,24 +2,28 @@ import axios from "axios";
 import { EventEmitter } from "events";
 const eventEmitter = new EventEmitter();
 const cartService = {
-  async getCart() {
+  getUser(){
     const userStr = localStorage.getItem("user");
     if (!userStr) {
       throw new Error("Chưa đăng nhập!");
     }
-    const user = JSON.parse(userStr);
+    return JSON.parse(userStr);
+  },
+
+  async getCart() {
+    const user = this.getUser();
     const userID = user._id;
     const response = await axios.get(`http://nguyenlequocbao.id.vn/v1/api/cart?userID=${userID}`);
     return response.data.data;
   },
 
   async getTotalItems() {
-    const cartData = await this.getCart();
+    const cart = await this.getCart();
     if (
-      cartData &&
-      Array.isArray(cartData.cart_products)
+      cart &&
+      Array.isArray(cart.cart_products)
     ) {
-      return cartData.cart_products.reduce(
+      return cart.cart_products.reduce(
         (total, item) => total + (item.quantity || 0),
         0
       );
@@ -28,11 +32,7 @@ const cartService = {
   },
 
   async addToCart(product, quantity) {
-    const userStr = localStorage.getItem("user");
-    const user = JSON.parse(userStr);
-    if (!user) {
-      throw new Error("Chưa đăng nhập!");
-    }
+    const user = this.getUser();
     const body = {
       userID: user._id,
       product: {
@@ -49,19 +49,31 @@ const cartService = {
     eventEmitter.emit("cartUpdated");
   },
 
-  removeFromCart(itemId, itemSize) {
-    const cart = this.getCart().filter(
-      (item) => !(item.id === itemId && item.size === itemSize)
-    );
-
-    this.updateCart(cart);
-
+  async removeFromCart(productID, size) {
+    const user = this.getUser();
+    await axios.delete("http://nguyenlequocbao.id.vn/v1/api/cart", {
+      headers: { "Content-Type": "application/json" },
+      data: {
+        userID: user._id,
+        productID,
+        size,
+      },
+    });
     eventEmitter.emit("cartUpdated");
   },
 
   clearCart() {
     localStorage.removeItem("store");
     eventEmitter.emit("cartUpdated");
+  },
+
+  async fetchReview(cartID) {
+    const res = await axios.post(
+      "http://nguyenlequocbao.id.vn/v1/api/checkout/review",
+      { cartID },
+      { headers: { "Content-Type": "application/json" } }
+    );
+    return res.data;
   },
 
   eventEmitter,

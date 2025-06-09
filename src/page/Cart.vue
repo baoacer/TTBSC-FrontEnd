@@ -7,7 +7,7 @@
 
       <div
         v-for="(item, index) in cartItems"
-        :key="index"
+        :key="item._id + '-' + item.size"
         class="flex items-center justify-between mb-4 border-b pb-4"
       >
         <div class="flex items-center">
@@ -18,10 +18,9 @@
           <div>
             <span class="font-bold max-w-80 line-clamp-3">{{ item.name }}</span>
             <div class="text-gray-500 text-sm mt-1">Size: {{ item.size }}</div>
-          </div>  
+          </div>
         </div>
 
-        <!-- Hiển thị giá gốc nếu có giảm giá -->
         <span
           v-if="item.discount > 0"
           class="text-black font-semibold text-lg line-through"
@@ -34,6 +33,7 @@
           <button
             class="bg-gray-200 px-3 py-1"
             @click="decreaseQuantity(index)"
+            :disabled="item.quantity <= 1"
           >
             -
           </button>
@@ -46,11 +46,8 @@
           </button>
         </div>
 
-        <!-- Hiển thị giá sau giảm -->
         <span class="text-red-600 font-semibold text-lg">
-          {{
-            formatPrice(item.price * (1 - (item.discount || 0)) * item.quantity)
-          }}
+          {{ formatPrice(item.price * (1 - (item.discount || 0)) * item.quantity) }}
         </span>
       </div>
 
@@ -80,12 +77,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import cartService from "../services/cartServices";
 import userService from "../services/userSercices";
-import { useToast } from "vue-toast-notification";
-const toast = useToast();
+import { toast } from "vue3-toastify";
 
 const cartItems = ref([]);
 const review = ref({
@@ -95,122 +91,79 @@ const review = ref({
 });
 const router = useRouter();
 
-onMounted(async () => {
+const loadCart = async () => {
   try {
     const cartData = await cartService.getCart();
     cartItems.value = cartData.cart_products || [];
-    await fetchReview(cartData._id);
-  } catch (error) {
+    if (cartData._id) await fetchReview(cartData._id);
+  } catch {
     cartItems.value = [];
   }
-});
+};
+
+onMounted(loadCart);
 
 const fetchReview = async (cartID) => {
-  const res = await fetch(
-    "http://nguyenlequocbao.id.vn/v1/api/checkout/review",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cartID }),
+  try {
+    const data = await cartService.fetchReview(cartID);
+    if (data && data.data) {
+      review.value = data.data;
     }
-  );
-  const data = await res.json();
-  if (data && data.data) {
-    review.value = data.data;
+  } catch {
+    review.value = {
+      totalPrice: 0,
+      totalDiscount: 0,
+      totalCheckout: 0,
+    };
   }
 };
 
 const formatPrice = (price) => {
+  if (!price && price !== 0) return "";
   return price.toLocaleString("vi-VN") + "₫";
 };
 
 const removeItem = async (productID, size) => {
   try {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user) {
-      toast.open({
-        message: "Bạn chưa đăng nhập",
-        type: "error",
-      });
-      return;
-    }
-    console.log(user._id, productID);
-    await fetch("http://nguyenlequocbao.id.vn/v1/api/cart", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userID: user._id,
-        productID: productID,
-        size: size,
-      }),
-    });
-    // Sau khi xóa, reload lại giỏ hàng và review
-    const cartData = await cartService.getCart();
-    cartItems.value = cartData.cart_products || [];
-    debugger;
-    if (cartData._id) {
-      await fetchReview(cartData._id);
-    }
-  } catch (e) {
-    this.$toast.open({
-      message: "Xóa sản phẩm thất bại",
-      type: "error",
-    });
+    await cartService.removeFromCart(productID, size);
+    await loadCart();
+  } catch {
+    toast.error("Xóa sản phẩm thất bại");
   }
 };
 
-const increaseQuantity = async (index) => {
+const updateQuantity = async (index, delta) => {
   const item = cartItems.value[index];
-  await cartService.addToCart(item, 1);
-  // Reload cart
-  const cartData = await cartService.getCart();
-  cartItems.value = cartData.cart_products || [];
-  if (cartData._id) {
-    await fetchReview(cartData._id);
+  if (item.quantity + delta < 1) {
+    toast.error("Số lượng không thể nhỏ hơn 1");
+    return;
   }
-};
-
-const decreaseQuantity = async (index) => {
-  const item = cartItems.value[index];
-  if (item.quantity > 1) {
-    await cartService.addToCart(item, -1);
-    // Reload cart
-    const cartData = await cartService.getCart();
-    cartItems.value = cartData.cart_products || [];
-
-    if (cartData._id) {
-      await fetchReview(cartData._id);
-    }
+  
+  try {
+    await cartService.addToCart({...item, size: item.size}, delta);
+    await loadCart();
+  } catch {
+    toast.error("Cập nhật số lượng thất bại");
   }
-};
+}
+
+const increaseQuantity = async (index) => updateQuantity(index, 1);
+
+const decreaseQuantity = async (index) => updateQuantity(index, -1);
 
 const goToConfirm = () => {
   if (cartItems.value.length === 0) {
-    toast.open({
-      message: "Giỏ hàng của bạn đang trống",
-      type: "error",
-    });
+    toast.warning("Giỏ hàng của bạn đang trống");
     return;
   }
-
-  const isLogin = userService.isLoggedIn();
-  if (!isLogin) {
-    toast.open({
-      message: "Vui lòng đăng nhập trước khi thanh toán!",
-      type: "error",
-    });
-    return;
-  }
-
-  const user = JSON.parse(localStorage.getItem("user"));
-
+  
+  const user = JSON.parse(localStorage.getItem("user")) || {};
   const order = {
     name: user.name || "Khách chưa rõ tên",
     address: user.address || "Chưa có địa chỉ",
     total: review.value.totalCheckout,
   };
 
-  console.log("GO TO CONFIRM:", order);
   router.push({ name: "PaymentConfirm", query: order });
 };
 </script>

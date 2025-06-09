@@ -9,6 +9,7 @@ import Payment from "../page/Payment.vue";
 import Profile from "../page/Profile.vue";
 import PaymentResult from "../page/PaymentResult.vue";
 import History from "../page/History.vue";
+import RegisterSuccess from "../page/RegisterSuccess.vue";
 
 export default createRouter({
   history: createWebHistory(),
@@ -59,6 +60,11 @@ export default createRouter({
           next(); // Allow access to login if not logged in
         }
       },
+    },
+    {
+      path: "/register-success",
+      name: "RegisterSuccess",
+      component: RegisterSuccess
     },
     {
       path: "/product/:id",

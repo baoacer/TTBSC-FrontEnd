@@ -31,14 +31,22 @@
               v-if="showDropdown"
               class="absolute right-0 mt-2 w-32 z-10 bg-white shadow-lg rounded-md"
             >
-              <router-link to="/profile" class="block px-4 py-2 text-black hover:bg-gray-200">Profile</router-link>
-              <router-link to="/history" class="block px-4 py-2 text-black hover:bg-gray-200">History</router-link>
+              <router-link
+                to="/profile"
+                class="block px-4 py-2 text-black hover:bg-gray-200"
+                >Thông tin cá nhân</router-link
+              >
+              <router-link
+                to="/history"
+                class="block px-4 py-2 text-black hover:bg-gray-200"
+                >Lịch sử mua hàng</router-link
+              >
               <a
                 href="#"
                 @click.prevent="logout"
                 class="block px-4 py-2 text-black hover:bg-gray-200"
               >
-                Logout
+                Đăng xuất
               </a>
             </div>
           </div>
@@ -60,7 +68,10 @@
             <div
               class="border rounded-full w-8 h-8 border-gray-400 flex items-center justify-center hover:bg-black hover:text-white"
             >
-              <font-awesome-icon :icon="['fas', 'bag-shopping']" class="text-sm" />
+              <font-awesome-icon
+                :icon="['fas', 'bag-shopping']"
+                class="text-sm"
+              />
               <span
                 class="absolute -top-2 -right-1 bg-black text-white text-xs rounded-full px-1.5 py-0.5"
               >
@@ -75,85 +86,68 @@
     <nav
       class="container mx-auto flex justify-center space-x-8 py-2 font-bold text-gray-500"
     >
-      <a href="#" class="hover:text-black">Accessories <font-awesome-icon :icon="['fas', 'caret-down']" class="ml-1" /></a>
-      <a href="#" class="hover:text-black">Giày <font-awesome-icon :icon="['fas', 'caret-down']" class="ml-1" /></a>
-      <a href="#" class="hover:text-black">Kí gửi</a>
-      <a href="#" class="hover:text-black">Quần áo</a>
-      <a href="#" class="hover:text-black">Tin tức</a>
+      <a href="#" class="hover:text-black"
+        >Accessories
+        <font-awesome-icon :icon="['fas', 'caret-down']" class="ml-1"
+      /></a>
+      <a href="#" class="hover:text-black"
+        >Giày <font-awesome-icon :icon="['fas', 'caret-down']" class="ml-1"
+      /></a>
       <a href="#" class="hover:text-black">Khuyến mại</a>
     </nav>
   </header>
 </template>
 
-<script>
+<script setup>
 import cartService from "../services/cartServices";
-import userService from "../services/userSercices";
 import { ref, onMounted, onBeforeUnmount } from "vue";
+import { useUser } from "../composables/useUser";
 
-export default {
-  name: "Header",
-  setup() {
-    const totalItems = ref(0);
-    const showDropdown = ref(false);
-    const dropdownRef = ref(null);
-    const isLoggedIn = ref(!!localStorage.getItem("user"));
+/**
+ * 1.Variables
+ */
+const totalItems = ref(0);
+const showDropdown = ref(false);
+const dropdownRef = ref(null);
+const { isLoggedIn, logout } = useUser();
 
-    const updateTotalItems = async () => {
-      totalItems.value = await cartService.getTotalItems();
-    };
-
-    const logout = () => {
-      localStorage.clear();
-      showDropdown.value = false;
-      isLoggedIn.value = false;
-      window.location.href = "/login";
-    };
-
-    const toggleDropdown = () => {
-      showDropdown.value = !showDropdown.value;
-    };
-
-    const handleClickOutside = (e) => {
-      if (dropdownRef.value && !dropdownRef.value.contains(e.target)) {
-        showDropdown.value = false;
-      }
-    };
-
-    onMounted(() => {
-      updateTotalItems();
-      document.addEventListener("click", handleClickOutside);
-      cartService.eventEmitter.on("cartUpdated", updateTotalItems);
-
-      // Lắng nghe sự kiện đăng nhập
-      userService.eventEmitter.on("userLoggedIn", () => {
-        isLoggedIn.value = true;
-      });
-
-      // Lắng nghe sự kiện đăng xuất (nếu cần)
-      userService.eventEmitter.on("userLoggedOut", () => {
-        isLoggedIn.value = false;
-      });
-    });
-
-    onBeforeUnmount(() => {
-      cartService.eventEmitter.off("cartUpdated", updateTotalItems);
-      document.removeEventListener("click", handleClickOutside);
-      userService.eventEmitter.off("userLoggedIn");
-      userService.eventEmitter.off("userLoggedOut");
-    });
-
-    return {
-      totalItems,
-      isLoggedIn,
-      showDropdown,
-      toggleDropdown,
-      logout,
-      dropdownRef,
-    };
-  },
+/**
+ * 2.Methods
+ */
+const updateTotalItems = async () => {
+  totalItems.value = await cartService.getTotalItems();
 };
+
+/**
+ * Event Handlers Open/Close Dropdown
+ */
+const toggleDropdown = () => {
+  showDropdown.value = !showDropdown.value;
+};
+
+/**
+ * Handle Click Outside to Close Dropdown
+ */
+const handleClickOutside = (e) => {
+  if (dropdownRef.value && !dropdownRef.value.contains(e.target)) {
+    showDropdown.value = false;
+  }
+};
+
+/**
+ * Lifecycle Hooks
+ */
+onMounted(() => {
+  console.log("Header component mounted", isLoggedIn.value);
+  updateTotalItems();
+  document.addEventListener("click", handleClickOutside);
+  cartService.eventEmitter.on("cartUpdated", updateTotalItems);
+});
+
+onBeforeUnmount(() => {
+  cartService.eventEmitter.off("cartUpdated", updateTotalItems);
+  document.removeEventListener("click", handleClickOutside);
+});
 </script>
 
-<style scoped>
-/* Optional styles */
-</style>
+<style scoped></style>
