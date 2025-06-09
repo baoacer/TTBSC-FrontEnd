@@ -31,16 +31,9 @@
               v-if="showDropdown"
               class="absolute right-0 mt-2 w-32 z-10 bg-white shadow-lg rounded-md"
             >
-              <router-link
-                to="/profile"
-                class="block px-4 py-2 text-black hover:bg-gray-200"
-                >Thông tin cá nhân</router-link
-              >
-              <router-link
-                to="/history"
-                class="block px-4 py-2 text-black hover:bg-gray-200"
-                >Lịch sử mua hàng</router-link
-              >
+              <router-link to="/profile" class="block px-4 py-2 text-black hover:bg-gray-200">Profile</router-link>
+              <router-link to="/history" class="block px-4 py-2 text-black hover:bg-gray-200">History</router-link>
+              <router-link to="/admin/products" class="block px-4 py-2 text-black hover:bg-gray-200">Quản Lý Admin</router-link>
               <a
                 href="#"
                 @click.prevent="logout"
