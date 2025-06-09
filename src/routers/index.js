@@ -13,6 +13,39 @@ import History from "../page/History.vue";
 export default createRouter({
   history: createWebHistory(),
   routes: [
+
+    {
+      path: '/admin',
+      component: () => import('@/admin/AdminLayout.vue'),
+      children: [
+      {
+        path: "adds",
+        name: "AddProduct",
+        component: () => import("@/views/admin/AddProduct.vue"),
+      },
+        {
+        path: "edit-product",
+        name: "EditProduct",
+        component: () => import("@/views/admin/EditProduct.vue"),
+      },
+      {
+        path: "orders",
+        name: "OrderList",
+        component: () => import("@/views/admin/OrderManage.vue"),
+      },
+        {
+          path: 'products',
+          name: 'AdminProducts',
+          component: () => import('@/views/admin/ProductManage.vue')
+        },
+        {
+          path: 'users',
+          name: 'AdminUsers',
+          component: () => import('@/views/admin/UserManage.vue')
+        }
+      ]
+    },
+
     {
       path: "/payment/confirm",
       name: "PaymentConfirm",
@@ -92,5 +125,8 @@ export default createRouter({
       component: Profile,
       meta: { requiresAuth: true },
     },
+
+
+    
   ],
 });
