@@ -34,6 +34,7 @@
                 >Tài khoản</router-link
               >
               <router-link
+                v-if="user?.role === 'User'"
                 to="/history"
                 class="block px-4 py-2 text-black hover:bg-gray-200"
                 >Đơn hàng</router-link

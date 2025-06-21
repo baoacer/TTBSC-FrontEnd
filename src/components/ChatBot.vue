@@ -112,6 +112,7 @@ const scrollToBottom = () => {
 
 onMounted(async () => {
   try {
+    debugger
     const history = await fetchChatHistory();
     messages.value = history.map((item) => ({
       content: item.message || item.reply,
