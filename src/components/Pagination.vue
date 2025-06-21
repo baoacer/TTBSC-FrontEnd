@@ -59,6 +59,7 @@
 <script>
 import { ref, watch, computed } from "vue";
 import usePagination from "../hook/usePagination";
+import { toast } from "vue3-toastify";
 
 export default {
   name: "Pagination",
@@ -88,7 +89,7 @@ export default {
 
     const prev = () => {
       if (activePage.value === 1) {
-        alert("Đã ở trang đầu");
+        toast.warning("Đã ở trang đầu");
       } else {
         activePage.value -= 1;
         emit("page-changed", activePage.value);
@@ -97,7 +98,7 @@ export default {
 
     const next = () => {
       if (activePage.value >= props.totalPage) {
-        alert("Đã ở trang cuối");
+        toast.warning("Đã ở trang cuối");
       } else {
         activePage.value += 1;
         emit("page-changed", activePage.value);
@@ -106,7 +107,7 @@ export default {
 
     const setPage = (el) => {
       if (el === "...") {
-        alert("Không thể chọn trang này");
+        toast.warning("Không thể chọn trang này");
       } else {
         activePage.value = el;
         emit("page-changed", activePage.value);

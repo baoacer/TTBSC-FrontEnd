@@ -17,6 +17,8 @@ import { faCaretRight } from "@fortawesome/free-solid-svg-icons";
 import { faArrowLeft, faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import Vue3Toastify, { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
+import { createPinia } from "pinia";
+
 
 import {
   faHouseChimney,
@@ -54,12 +56,15 @@ library.add(
   faCart
 );
 
+const pinia = createPinia();
+
 createApp(App)
   .use(routers)
   .use(Vue3Toastify, {
     autoClose: 3000,
     position: "top-right"
   })
+  .use(pinia)
   .component("font-awesome-icon", FontAwesomeIcon)
   .mount("#app");
 

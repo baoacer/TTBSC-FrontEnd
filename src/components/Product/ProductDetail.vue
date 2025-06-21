@@ -1,18 +1,18 @@
 <template>
   <div class="p-8">
-    <div v-if="product" class="flex">
+    <div v-if="productDetail" class="flex">
       <!-- Ảnh sản phẩm -->
       <div class="w-1/2 relative">
         <img
-          :src="product.image"
+          :src="cloudinaryThumb(productDetail.images?.url)"
           alt="Product image"
-          class="w-full h-80 object-cover"
+          class="w-full h-auto object-cover"
         />
         <div
-          v-if="product.discount > 0"
+          v-if="productDetail.discount > 0"
           class="absolute top-0 left-0 bg-red-600 text-white text-xs font-bold px-3 py-2 ribbon"
         >
-          {{ product.discount * 100 }} % OFF
+          {{ productDetail.discount * 100 }} % OFF
           <br />
           GIÁ SỐC
         </div>
@@ -21,14 +21,17 @@
       <!-- Thông tin sản phẩm -->
       <div class="w-1/2">
         <div class="max-w-md mx-auto">
-          <h1 class="text-xl font-bold">{{ product.name }}</h1>
+          <h1 class="text-xl font-bold">{{ productDetail.name }}</h1>
 
           <div class="flex gap-4 items-center mt-2">
-            <div v-if="product.discount > 0" class="text-gray-500 line-through">
-              {{ formatPrice(product.price) }}
+            <div
+              v-if="productDetail.discount > 0"
+              class="text-gray-500 line-through"
+            >
+              {{ formatPrice(productDetail.price) }}
             </div>
             <div class="text-red-600 text-xl font-bold">
-              {{ formatPrice(discountedPrice) }}
+              {{ formatPrice(discountedPrice()) }}
             </div>
           </div>
 
@@ -36,23 +39,27 @@
           <div class="mt-4">
             <span class="font-bold">Size:</span>
             <button
-              v-for="size in product.sizes"
-              :key="size"
-              @click="selectedSize = size"
+              v-for="sizeObj in productDetail.sizes"
+              :key="sizeObj.size"
+              @click="selectedSize = sizeObj"
               :class="[
                 'border px-3 py-1 mx-1',
-                selectedSize === size
+                selectedSize?.size === sizeObj.size
                   ? 'border-gray-500 bg-black text-white'
                   : 'border-gray-300',
               ]"
             >
-              {{ size }}
+              {{ sizeObj.size }}
             </button>
           </div>
 
           <!-- Kho hàng -->
           <div class="mt-4">
-            <span class="font-bold text-orange-400">Còn hàng</span>
+            <span class="font-bold text-orange-400">
+              Hàng tồn:
+              <span v-if="selectedSize">{{ selectedSize.stock }}</span>
+              <span v-else>Chọn size để xem tồn kho</span>
+            </span>
           </div>
 
           <!-- Nút thêm vào giỏ -->
@@ -63,19 +70,21 @@
             >
               THÊM VÀO GIỎ HÀNG
             </button>
+            <button
+              @click="handleBuyNow"
+              class="bg-orange-500 text-white px-4 py-2 text-sm font-semibold"
+            >
+              MUA NGAY
+            </button>
           </div>
 
           <!-- Mã & danh mục -->
           <div class="mt-4 font-medium text-gray-500 text-sm">
             <div class="border-t border-gray-300 pt-2 pb-2">
-              Mã: {{ product.code }}
+              Mã: {{ productDetail.code }}
             </div>
-            <div class="border-t border-gray-300 pt-1">
-              Danh mục: {{ categoryName }}
-            </div>
-
             <div class="border-t border-gray-300 pt-2 pb-2">
-              Mô tả: {{ product.description }}
+              Mô tả: {{ productDetail.description }}
             </div>
           </div>
         </div>
@@ -86,96 +95,97 @@
   </div>
 </template>
 
-<script>
-import { defineComponent, onMounted, ref } from "vue";
+<script setup>
+import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
-import axios from "axios";
-import cartServices from "../../services/cartServices";
+import { useCart } from "../../composables/useCart";
+import { useUser } from "../../composables/useUser";
+import { useProduct } from "../../composables/useProduct";
+import { toast } from "vue3-toastify";
+import { useRouter } from "vue-router";
+import { formatPrice } from "../../utils/index.js";
+/**
+ * Variable
+ */
+const route = useRoute();
+const { user } = useUser();
+const { addItem } = useCart();
+const { fetchProductDetail, productDetail } = useProduct();
+const selectedSize = ref(null);
+const router = useRouter();
 
-export default defineComponent({
-  name: "ProductDetail",
-  data() {
-    return {
-      selectedSize: null,
-      categoryName: "Đang tải...", // ✅ biến lưu tên danh mục
-    };
-  },
-  computed: {
-    discountedPrice() {
-      if (this.product) {
-        return this.product.price * (1 - this.product.discount);
-      }
-      return 0;
-    },
-  },
-  methods: {
-    formatPrice(value) {
-      return new Intl.NumberFormat("vi-VN", {
-        style: "currency",
-        currency: "VND",
-        minimumFractionDigits: 0,
-      }).format(value);
-    },
-    handleAddToCart() {
-      const user = JSON.parse(localStorage.getItem('user'));
-      if (!user) {
-        this.$toast.open({
-          message: "Bạn chưa đăng nhập",
-          type: "error"
-        })
-        return;
-      }
-      if (!this.selectedSize) {
-        this.$toast.open({
-          message: "Vui lòng chọn kích thước",
-          type: "error",
-        });
-        return;
-      }
-      this.product.size = this.selectedSize
-      debugger
-      cartServices.addToCart(this.product, 1);
-      this.$toast.open({
-        message: `${this.product.name} (Size: ${this.selectedSize}) đã được thêm vào giỏ hàng!`,
-        type: "success",
-      });
-    },
-  },
-  setup() {
-    const route = useRoute();
-    const product = ref(null);
-    const categoryName = ref("Đang tải...");
+const discountedPrice = () => {
+  if (productDetail.value) {
+    return productDetail.value.price * (1 - productDetail.value.discount);
+  }
+  return 0;
+};
 
-    onMounted(async () => {
-      const id = route.params.id;
-      try {
-        // Lấy thông tin sản phẩm
-        const productRes = await axios.get(
-          `http://nguyenlequocbao.id.vn/v1/api/product/${id}`
-        );
-        product.value = productRes.data.data;
+const handleAddToCart = async () => {
+  if (!user.value) {
+    toast.warning("Vui lòng đăng nhập để mua hàng");
+    return;
+  }
+  if (!selectedSize.value) {
+    toast.warning("Vui lòng chọn kích thước");
+    return;
+  }
 
-        // Gọi API để lấy tên danh mục từ product.category
-        const catId = product.value.category;
-        const categoryRes = await axios.get(
-          `http://nguyenlequocbao.id.vn/v1/api/category/${catId}`
-        );
-        categoryName.value = categoryRes.data.data.name;
-      } catch (error) {
-        alert("Không thể tải sản phẩm hoặc danh mục.");
-        console.error(error);
-        categoryName.value = "Không rõ";
-      }
+  try {
+    await addItem({
+      userID: user.value._id,
+      product: {
+        id: productDetail.value._id,
+        quantity: 1,
+        size: selectedSize.value.size,
+      },
     });
+    toast.success("Thêm vào giỏ hàng thành công");
+  } catch (error) {
+    toast.error(error.message);
+  }
+};
 
-    return {
-      product,
-      categoryName,
-    };
-  },
+const handleBuyNow = async () => {
+  if (!user.value) {
+    toast.warning("Vui lòng đăng nhập để mua hàng");
+    return;
+  }
+  if (!selectedSize.value) {
+    toast.warning("Vui lòng chọn kích thước");
+    return;
+  }
+
+  try {
+    await addItem({
+      userID: user.value._id,
+      product: {
+        id: productDetail.value._id,
+        quantity: 1,
+        size: selectedSize.value.size,
+      },
+    });
+    router.push("/cart");
+  } catch (error) {
+    toast.error(error.message);
+  }
+};
+
+onMounted(async () => {
+  const id = route.params.id;
+  try {
+    debugger;
+    await fetchProductDetail(id);
+  } catch (error) {
+    console.error(error.message);
+    toast.error("Lỗi load sản phẩm");
+  }
 });
+
+const cloudinaryThumb = (url, quality = "auto:best") => {
+  if (!url) return "";
+  return url.replace("/upload/", `/upload/c_fill,q_${quality}/`);
+};
 </script>
 
-<style scoped>
-/* Add styles if needed */
-</style>
+<style scoped></style>

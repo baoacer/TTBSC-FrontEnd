@@ -1,93 +1,113 @@
 <template>
   <div class="flex flex-col items-center justify-center h-screen text-center">
-    <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900 mb-4"></div>
-    <p class="text-lg mb-2">Đang xử lý thanh toán cho <strong>{{ nameDisplay }}</strong>, vui lòng chờ trong giây lát...</p>
+    <div
+      class="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900 mb-4"
+    ></div>
+    <p class="text-lg mb-2">
+      Đang xử lý thanh toán cho <strong>{{ nameDisplay }}</strong
+      >, vui lòng chờ trong giây lát...
+    </p>
     <p v-if="totalDisplay"><strong>Số tiền:</strong> {{ totalDisplay }}</p>
   </div>
 </template>
 
 <script setup>
-import { onMounted, computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { onMounted, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useUser } from "../composables/useUser";
+import { useCart } from "../composables/useCart";
+import { useCheckout } from "../composables/useCheckout";
+import { toast } from "vue3-toastify";
+
 
 const route = useRoute();
 const router = useRouter();
+const { user } = useUser();
+const { cart, fetchCart } = useCart();
+const { createOrder } = useCheckout();
 
-const nameDisplay = computed(() => route.query.name || 'khách hàng');
+/**
+ * 2. Method
+ */
+const nameDisplay = computed(() => route.query.name || "khách hàng");
 const totalDisplay = computed(() => {
   const num = Number(route.query.total || 0);
-  return num.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+  return num.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
 });
 
+/**
+ * Life Hook
+ */
 onMounted(async () => {
-  const cartID = localStorage.getItem('cartID')
-  const userID = JSON.parse(localStorage.getItem('user'))._id
+  try {
+    debugger
+    const order = await createOrder({
+      cartID: cart.value._id,
+      userID: user.value._id,
+      payment: route.query.payment,
+      phone: route.query.phone,
+      address: route.query.address,
+      note: route.query.note,
+      name: route.query.name
+    });
 
-  console.log(userID, route.query.payment)
+    await fetchCart(user.value._id);
 
-  const res = await fetch("http://nguyenlequocbao.id.vn/v1/api/checkout/order", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      cartID,
-      userID,
-      payment: route.query.payment
-    }),
-  });
-  const data = await res.json();
-
-  if (data && data.data) {
-    if (typeof data.data === "string") {
-      window.location.href = data.data;
-    } else if (typeof data.data === "object") {
-      router.replace({
-        name: "PaymentResult",
-        query: {
-          vnp_TransactionStatus: "00",
-          vnp_TxnRef: data.data._id,
-          vnp_Amount: data.data.order_checkout,
-          cod: "true"
-        }
-      });
+    if (order) {
+      if (typeof order === "string") {
+        window.location.href = order;
+      } else if (typeof order === "object") {
+        router.replace({
+          name: "PaymentResult",
+          query: {
+            vnp_TransactionStatus: "00",
+            vnp_TxnRef: order._id,
+            vnp_Amount: order.checkout.totalCheckout,
+            cod: "true",
+          },
+        });
+      }
+    } else {
+      toast.error("Không lấy được kết quả thanht toán")
     }
-  } else {
-    alert("Không lấy được kết quả thanh toán!");
+  } catch (error) {
+    console.error('payment result error: ', error.message)
   }
 });
 </script>
-<style scoped>  
-  .animate-spin {
-    border-top-color: transparent;
-    animation: spin 1s linear infinite;
-  }
+<style scoped>
+.animate-spin {
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
 
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
-  .h-screen {
-    height: 100vh;
-  }
-  .text-center {
-    text-align: center;
-  }
-  .text-lg {
-    font-size: 1.125rem;
-  }
-  .mb-2 {
-    margin-bottom: 0.5rem;
-  }
-  .mb-4 {
-    margin-bottom: 1rem;
-  }
-  .rounded-full {
-    border-radius: 9999px;
-  }
-  .h-16 {
-    height: 4rem;
-  }
-  .w-16 {
-    width: 4rem;
-  }     
+}
+.h-screen {
+  height: 100vh;
+}
+.text-center {
+  text-align: center;
+}
+.text-lg {
+  font-size: 1.125rem;
+}
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+.mb-4 {
+  margin-bottom: 1rem;
+}
+.rounded-full {
+  border-radius: 9999px;
+}
+.h-16 {
+  height: 4rem;
+}
+.w-16 {
+  width: 4rem;
+}
 </style>

@@ -10,41 +10,46 @@ import Profile from "../page/Profile.vue";
 import PaymentResult from "../page/PaymentResult.vue";
 import History from "../page/History.vue";
 import RegisterSuccess from "../page/RegisterSuccess.vue";
+import ForgotPasswor from "../page/ForgotPasswor.vue";
 
 export default createRouter({
   history: createWebHistory(),
   routes: [
-
     {
-      path: '/admin',
-      component: () => import('@/admin/AdminLayout.vue'),
+      path: "/admin",
+      component: () => import("@/admin/AdminLayout.vue"),
       children: [
-      {
-        path: "adds",
-        name: "AddProduct",
-        component: () => import("@/views/admin/AddProduct.vue"),
-      },
         {
-        path: "edit-product",
-        name: "EditProduct",
-        component: () => import("@/views/admin/EditProduct.vue"),
-      },
-      {
-        path: "orders",
-        name: "OrderList",
-        component: () => import("@/views/admin/OrderManage.vue"),
-      },
-        {
-          path: 'products',
-          name: 'AdminProducts',
-          component: () => import('@/views/admin/ProductManage.vue')
+          path: "adds",
+          name: "AddProduct",
+          component: () => import("@/views/admin/AddProduct.vue"),
         },
         {
-          path: 'users',
-          name: 'AdminUsers',
-          component: () => import('@/views/admin/UserManage.vue')
-        }
-      ]
+          path: "categories",
+          name: "CategoryManage",
+          component: () => import("@/views/admin/CategoryManage.vue"),
+        },
+        {
+          path: "edit-product",
+          name: "EditProduct",
+          component: () => import("@/views/admin/EditProduct.vue"),
+        },
+        {
+          path: "orders",
+          name: "OrderList",
+          component: () => import("@/views/admin/OrderManage.vue"),
+        },
+        {
+          path: "products",
+          name: "AdminProducts",
+          component: () => import("@/views/admin/ProductManage.vue"),
+        },
+        {
+          path: "users",
+          name: "AdminUsers",
+          component: () => import("@/views/admin/UserManage.vue"),
+        },
+      ],
     },
 
     {
@@ -65,6 +70,7 @@ export default createRouter({
 
     {
       path: "/",
+      name: "Home",
       component: Home,
     },
 
@@ -97,7 +103,12 @@ export default createRouter({
     {
       path: "/register-success",
       name: "RegisterSuccess",
-      component: RegisterSuccess
+      component: RegisterSuccess,
+    },
+    {
+      path: "/forgot-password",
+      name: "ForgotPasswor",
+      component: ForgotPasswor,
     },
     {
       path: "/product/:id",
@@ -131,8 +142,5 @@ export default createRouter({
       component: Profile,
       meta: { requiresAuth: true },
     },
-
-
-    
   ],
 });

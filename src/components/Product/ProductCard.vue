@@ -17,7 +17,7 @@
           alt="Product"
           class="w-full h-auto"
           height="150"
-          :src="product.image"
+          :src="product.images.url"
           width="200"
         />
       </router-link>
@@ -42,7 +42,6 @@
 
     <!-- Thông tin sản phẩm -->
     <div class="text-center mt-4">
-      <div class="text-gray-500 text-xs">{{ categoryName }}</div>
       <div class="text-violet-800 text-sm font-semibold">
         {{ product.name }}
       </div>
@@ -51,88 +50,60 @@
           v-if="product.discount > 0"
           class="text-gray-400 line-through text-sm mr-2"
         >
-          {{ formatPrice(product.price) }} ₫
+          {{ formatPrice(product.price) }} 
         </div>
         <div class="text-black font-bold text-lg">
-          {{ formatPrice(finalPrice) }} ₫
+          {{ formatPrice(finalPrice) }} 
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-import cartServices from "../../services/cartServices";
+<script setup>
+import { computed, ref } from "vue";
+import { useCart } from "@/composables/useCart";
+import { useUser } from "@/composables/useUser";
+import { toast } from "vue3-toastify";
+import { formatPrice } from '../../utils/index.js'
 
-export default {
-  name: "ProductCard",
-  props: {
-    product: {
-      type: Object,
-      required: true,
-    },
+/**
+ * 1. Variable
+ */
+const props = defineProps({
+  product: {
+    type: Object,
+    required: true,
   },
-  data() {
-    return {
-      hovered: false,
-      categoryName: "",
-    };
-  },
-  computed: {
-    finalPrice() {
-      return this.product.discount > 0
-        ? this.product.price * (1 - this.product.discount)
-        : this.product.price;
-    },
-  },
-  watch: {
-    product: {
-      immediate: true,
-      handler(newVal) {
-        if (newVal && newVal.category) {
-          this.fetchCategoryName(newVal.category);
-        }
-      },
-    },
-  },
-  methods: {
-    // TODO: convert data to metadata
-    async fetchCategoryName(categoryId) {
-      try {
-        const res = await fetch(
-          `http://nguyenlequocbao.id.vn/v1/api/category/${categoryId}`,
-          {
-            method: "GET", 
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-        const data = await res.json();
-        if (data && data.data && data.data.name) {
-          this.categoryName = data.data.name;
-        } else {
-          this.categoryName = categoryId;
-        }
-      } catch {
-        this.categoryName = categoryId;
-      }
-    },
-    handleAddToCart() {
-      const productWithSize = {
-        ...this.product,
-        name: this.product.name + ` - ${this.product.sizes?.[0] || "Default"}`,
-        size: this.product.sizes?.[0] || "Default",
-      };
-      cartServices.addToCart(productWithSize);
-      alert(`${this.product.name} đã được thêm vào giỏ hàng!`);
-    },
-    formatPrice(value) {
-      return new Intl.NumberFormat("vi-VN", {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      }).format(value);
-    },
-  },
+});
+const hovered = ref(false);
+const { addItem } = useCart();
+const { user } = useUser();
+
+const finalPrice = computed(() =>
+  props.product.discount > 0
+    ? props.product.price * (1 - props.product.discount)
+    : props.product.price
+);
+
+const handleAddToCart = async () => {
+  if (!user.value) {
+    toast.warning("Vui lòng đăng nhập để thêm vào giỏ hàng!");
+    return;
+  }
+  const size = props.product.sizes?.[0]?.name || "Default";
+  try {
+    await addItem(user.value._id, {
+      id: props.product._id,
+      quantity: 1,
+      size,
+    });
+    toast.success(`${props.product.name} (Size: ${size}) đã được thêm vào giỏ hàng!`);
+  } catch (e) {
+    toast.error("Có lỗi khi thêm vào giỏ hàng!");
+  }
 };
+
 </script>
 <style scoped>
 .ribbon {

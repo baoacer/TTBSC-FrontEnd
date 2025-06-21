@@ -11,10 +11,10 @@
         class="flex items-center justify-between mb-4 border-b pb-4"
       >
         <div class="flex items-center">
-          <button class="p-2 rounded" @click="removeItem(item._id, item.size)">
+          <button class="p-2 rounded" @click="handleRemoveItem(item)">
             <font-awesome-icon :icon="['fas', 'circle-xmark']" />
           </button>
-          <img :src="item.image" :alt="item.name" class="w-24 h-24 mx-4" />
+          <img :src="item.images?.url" :alt="item.name" class="w-24 h-24 mx-4" />
           <div>
             <span class="font-bold max-w-80 line-clamp-3">{{ item.name }}</span>
             <div class="text-gray-500 text-sm mt-1">Size: {{ item.size }}</div>
@@ -79,10 +79,15 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import cartService from "../services/cartServices";
-import userService from "../services/userSercices";
 import { toast } from "vue3-toastify";
+import { useCart } from "../composables/useCart";
+import { useCheckout } from "../composables/useCheckout";
+import { useUser } from "../composables/useUser";
+import { formatPrice } from '../utils/index.js'
 
+const { fetchCart, addItem, removeItem, cart } = useCart();
+const { fetchReview } = useCheckout();
+const { user } = useUser();
 const cartItems = ref([]);
 const review = ref({
   totalPrice: 0,
@@ -93,9 +98,10 @@ const router = useRouter();
 
 const loadCart = async () => {
   try {
-    const cartData = await cartService.getCart();
+    await fetchCart(user.value._id)
+    const cartData = cart.value
     cartItems.value = cartData.cart_products || [];
-    if (cartData._id) await fetchReview(cartData._id);
+    if (cartData._id) await loadReview(cartData._id);
   } catch {
     cartItems.value = [];
   }
@@ -103,11 +109,15 @@ const loadCart = async () => {
 
 onMounted(loadCart);
 
-const fetchReview = async (cartID) => {
+const loadReview = async (cartID) => {
   try {
-    const data = await cartService.fetchReview(cartID);
-    if (data && data.data) {
-      review.value = data.data;
+    const data = await fetchReview({ cartID });
+    if (data) {
+      review.value = {
+        totalPrice: data.totalPrice || 0,
+        totalDiscount: data.totalDiscount || 0,
+        totalCheckout: data.totalCheckout || 0,
+      };
     }
   } catch {
     review.value = {
@@ -118,14 +128,14 @@ const fetchReview = async (cartID) => {
   }
 };
 
-const formatPrice = (price) => {
-  if (!price && price !== 0) return "";
-  return price.toLocaleString("vi-VN") + "₫";
-};
+/**
+ *  Utils 
+ */
 
-const removeItem = async (productID, size) => {
+
+const handleRemoveItem = async (item) => {
   try {
-    await cartService.removeFromCart(productID, size);
+    await removeItem(user.value._id, item._id, item.size);
     await loadCart();
   } catch {
     toast.error("Xóa sản phẩm thất bại");
@@ -138,17 +148,22 @@ const updateQuantity = async (index, delta) => {
     toast.error("Số lượng không thể nhỏ hơn 1");
     return;
   }
-  
   try {
-    await cartService.addToCart({...item, size: item.size}, delta);
+     await addItem({
+      userID: user.value._id,
+      product: {
+        id: item._id,
+        quantity: delta,
+        size: item.size
+      }
+    })
     await loadCart();
-  } catch {
-    toast.error("Cập nhật số lượng thất bại");
+  } catch (error) {
+    toast.error(error.message);
   }
 }
 
 const increaseQuantity = async (index) => updateQuantity(index, 1);
-
 const decreaseQuantity = async (index) => updateQuantity(index, -1);
 
 const goToConfirm = () => {
@@ -157,13 +172,19 @@ const goToConfirm = () => {
     return;
   }
   
-  const user = JSON.parse(localStorage.getItem("user")) || {};
-  const order = {
-    name: user.name || "Khách chưa rõ tên",
-    address: user.address || "Chưa có địa chỉ",
-    total: review.value.totalCheckout,
-  };
-
-  router.push({ name: "PaymentConfirm", query: order });
+  router.push(
+    { 
+      name: "PaymentConfirm",
+      query: {
+        userID: user.value?._id,
+        cartID: cart.value?._id
+      }
+    }
+  );
 };
+
+/**
+ * Life Hook
+ */
+onMounted(loadCart)
 </script>

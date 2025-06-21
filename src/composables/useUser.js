@@ -1,23 +1,25 @@
-import { ref } from "vue";
-import { login as loginApi } from "../api/user";
-
-const user = ref(JSON.parse(localStorage.getItem("user")) || null);
-const accessToken = ref(localStorage.getItem("accessToken") || "");
-const isLoggedIn = ref(!!user.value && !!accessToken.value);
+import { computed } from "vue";
+import {
+  login as loginApi,
+  updateUserInfo,
+  getUsers,
+  active,
+  resetPassword,
+  changePassword
+} from "../api/user";
+import { useUserStore } from "../store/user";
 
 export function useUser() {
+  const useStore = useUserStore();
+
   /**
-   * Login  
+   * Login
    */
   const login = async (email, password) => {
     const res = await loginApi({ email, password });
     const metadata = res.data?.metadata;
     if (metadata?.user && metadata?.accessToken) {
-      user.value = metadata.user;
-      accessToken.value = metadata.accessToken;
-      localStorage.setItem("user", JSON.stringify(metadata.user));
-      localStorage.setItem("accessToken", metadata.accessToken);
-      isLoggedIn.value = true;
+      useStore.setUser(metadata.user, metadata.accessToken);
     }
     return metadata;
   };
@@ -26,18 +28,64 @@ export function useUser() {
    * Logout
    */
   const logout = () => {
-    user.value = null;
-    accessToken.value = "";
-    localStorage.removeItem("user");
-    localStorage.removeItem("accessToken");
-    isLoggedIn.value = false;
+    useStore.logout();
+  };
+
+  const update = async (data) => {
+    await updateUserInfo({
+      userID: useStore.user._id,
+      data,
+    });
+    const updateInfo = { ...useStore.user, ...data };
+    useStore.setUser(updateInfo, useStore.accessToken);
+  };
+
+  const fetchUsers = async (params) => {
+    try {
+      const { data } = await getUsers(params);
+      return data?.metadata;
+    } catch (e) {
+      console.error("Fetch Users Error:", e);
+      return { users: [], pagination: { total: 0, totalPage: 1, page: 1, limit: 10 } };
+    }
+  };
+
+  const activeUser = async ({ email }) => {
+    try {
+      await active({ email });
+    } catch (e) {
+      throw new Error("Activce User Error::", e.message);
+    }
+  };
+
+  const reset = async ({ email }) => {
+    try {
+      await resetPassword({ email });
+    } catch (e) {
+      const errMsg = e.response?.data?.message || "Đã có lỗi xảy ra";
+      throw new Error(errMsg);
+    }
+  };
+
+  const change = async (data) => {
+    try {
+      await changePassword(data);
+    } catch (e) {
+      throw new Error("Change Password Error::", e.message);
+    }
   };
 
   return {
-    user,
-    accessToken,
-    isLoggedIn,
     login,
     logout,
+    update,
+    fetchUsers,
+    activeUser,
+    reset,
+    change,
+    users: computed(() => useStore.users),
+    isLogin: computed(() => useStore.isLogin),
+    user: computed(() => useStore.user),
+    accessToken: computed(() => useStore.accessToken),
   };
 }
