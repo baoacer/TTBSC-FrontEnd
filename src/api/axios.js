@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-    baseURL: 'http://localhost:3056/v1/api',
+    baseURL: 'http://nguyenlequocbao.id.vn/v1/api',
     // headers: {
     //     'Content-Type': 'application/json',
     //     'Access-Control-Allow-Origin': '*',

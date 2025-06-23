@@ -23,7 +23,7 @@
       </router-link>
 
       <!-- Bookmark icon khi hover -->
-      <div
+      <!-- <div
         class="absolute bottom-1 left-2 flex justify-center items-center opacity-0 transition-opacity duration-300 group-hover:opacity-100"
       >
         <div
@@ -37,7 +37,7 @@
             class="transition duration-300"
           />
         </div>
-      </div>
+      </div> -->
     </div>
 
     <!-- Thông tin sản phẩm -->

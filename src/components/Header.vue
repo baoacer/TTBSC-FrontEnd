@@ -34,13 +34,13 @@
                 >Tài khoản</router-link
               >
               <router-link
-                v-if="user?.role === 'User'"
-                to="/history"
+                v-if="user?.role.name === 'User'"
+                to="/history" 
                 class="block px-4 py-2 text-black hover:bg-gray-200"
                 >Đơn hàng</router-link
               >
               <router-link
-                v-if="user?.role === 'Admin'"
+                v-if="user?.role.name === 'Admin'"
                 to="/admin/products"
                 class="block px-4 py-2 text-black hover:bg-gray-200"
                 >Admin</router-link
